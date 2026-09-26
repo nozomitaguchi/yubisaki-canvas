@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ゆびさきキャンバス</title>
-<meta name="description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
+<meta name="description" content="線を描く・色を散らす・つまんで投げると、まめっこ・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
 <meta name="theme-color" content="#e2e6fb">
 <link rel="canonical" href="https://nozomitaguchi.github.io/yubisaki-canvas/">
 <link rel="icon" type="image/png" href="./icon-192.png">
@@ -14,12 +14,12 @@
 <meta name="apple-mobile-web-app-title" content="ゆびさき">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ゆびさきキャンバス">
-<meta property="og:description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
+<meta property="og:description" content="線を描く・色を散らす・つまんで投げると、まめっこ・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
 <meta property="og:url" content="https://nozomitaguchi.github.io/yubisaki-canvas/">
 <meta property="og:image" content="https://nozomitaguchi.github.io/yubisaki-canvas/ogp.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ゆびさきキャンバス">
-<meta name="twitter:description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
+<meta name="twitter:description" content="線を描く・色を散らす・つまんで投げると、まめっこ・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
 <meta name="twitter:image" content="https://nozomitaguchi.github.io/yubisaki-canvas/ogp.png">
 <style>
   html{color-scheme:light}
@@ -272,18 +272,16 @@ function legs2(f, hx, hy, ph, stride, lw, backKnee, lift = 3){
 
 /* ---------- species (all face right, feet at y=0) ---------- */
 const FIG = {
-  kobito(f, s){ const c = s.accent || '#ff5c8a', sw = s.air ? 1 : Math.sin(s.ph);
-    if (s.climb){ f.line([[0, -9], [-2.5, -5 + sw * 2], [-2.5, sw * 2]], 1.7); f.line([[0, -9], [2.5, -5 - sw * 2], [2.5, -sw * 2]], 1.7); }
-    else if (s.air){ f.line([[0, -9], [-3.5, -4], [-4.5, 0]], 1.7); f.line([[0, -9], [3.5, -5], [5, -2]], 1.7); }
-    else legs2(f, 0, -9, s.ph, 3.6, 1.7, false, 2);
-    f.line([[0, -9], [0, -17]], 1.8);
-    if (s.climb){ f.line([[0, -15], [-3.2, -19 + sw * 2]], 1.6); f.line([[0, -15], [3.2, -19 - sw * 2]], 1.6); }
-    else if (s.air || s.carry){ f.line([[0, -15], [-4, -20]], 1.6); f.line([[0, -15], [4, -20]], 1.6); }
-    else { f.line([[0, -15], [sw * 3.5, -11]], 1.6); f.line([[0, -15], [-sw * 3.5, -11]], 1.6); }
-    f.circ(.5, -21.5, 4.2, 'rgba(255,255,255,.22)', 1.8);
-    f.dot(2.2, -22, .75, '#2b2745'); f.dot(-.4, -22, .75, '#2b2745');
-    f.poly([[-4.8, -24.2], [5, -24.2], [3, -27.5], [-2, -34]], c, 1.3);
-    if (s.carry) f.ell(.5, -37.5, 3.4, 2.7, 0, '#f2c14e', 1.2); },
+  mame(f, s){ const c = mix(s.accent || '#ff8fb1', .3), l = s.moving && !s.climb ? Math.sin(s.ph) * 2.2 : 0, sw = Math.sin(s.ph);
+    f.ell(-4, -1.8 + Math.min(0, l), 3.4, 2, 0, '#8a5a3c', 1.4); f.ell(4, -1.8 + Math.min(0, -l), 3.4, 2, 0, '#8a5a3c', 1.4);
+    if (s.climb || s.air || s.carry){ f.line([[-7.5, -15], [-10.5, -21 + (s.climb ? sw * 2 : 0)]], 1.8); f.line([[7.5, -15], [10.5, -21 - (s.climb ? sw * 2 : 0)]], 1.8); }
+    else { f.line([[-8.5, -12], [-11.5, -9 + sw * 1.5]], 1.8); f.line([[8.5, -12], [11.5, -9 - sw * 1.5]], 1.8); }
+    f.ell(0, -12.5, 9.5, 10.5, 0, c);
+    f.ell(-3.2, -17.5, 2.8, 1.8, -.5, 'rgba(255,255,255,.75)', 1, true);
+    f.dot(-3.2, -12.5, 1.15); f.dot(3.2, -12.5, 1.15);
+    f.dot(-6, -10, 1.5, 'rgba(255,110,140,.5)'); f.dot(6, -10, 1.5, 'rgba(255,110,140,.5)'); f.curve([-1.6, -10], [0, -8.6], [1.6, -10], 1.1);
+    f.curve([0, -22.5], [.6, -25.5], [0, -28], 1.7, '#4f9a55'); f.ell(-3.3, -28.6, 3.3, 1.8, .5, '#7cc47f', 1.2); f.ell(3.3, -29.2, 3.3, 1.8, -.5, '#7cc47f', 1.2);
+    if (s.carry) f.ell(0, -34.5, 3.4, 2.7, 0, '#f2c14e', 1.2); },
   elephant(f, s){ const b = bobOf(s), hx = 21, hy = -37 + b, sw = Math.sin(s.t * 2) * 3;
     legs2(f, -12, -17 + b, s.ph, 5, 4.6); legs2(f, 12, -17 + b, s.ph + 1, 5, 4.6);
     f.line([[-22, -30 + b], [-27, -21 + b]], 2); f.dot(-27, -20 + b, 1.6);
@@ -466,7 +464,7 @@ const FIG = {
 };
 
 const SPECIES = {
-  kobito:{fig:'kobito', r:6, h:34, sp:26, climb:true, carry:true, ink:'#fff', halo:'rgba(40,30,110,.38)', voice:['わーい', 'やっほー', 'えいっ', 'るんるん', 'こんにちは']},
+  mame:{fig:'mame', r:7, h:30, sp:24, climb:true, carry:true, hop:true, voice:['わーい', 'やっほー', 'まめ〜', 'えいっ', 'るんるん']},
   elephant:{fig:'elephant', r:20, h:48, sp:32, k:1.12, voice:'パオーン'},
   giraffe:{fig:'giraffe', r:15, h:92, sp:40, voice:'モグモグ'},
   lion:{fig:'lion', r:14, h:44, sp:48, voice:'ガオー'},
@@ -1264,8 +1262,8 @@ class Ladder {
     ctx.save(); ctx.lineCap = 'round';
     const path = () => { ctx.beginPath(); ctx.moveTo(this.x - w + sw, top); ctx.lineTo(this.x - w, GY); ctx.moveTo(this.x + w + sw, top); ctx.lineTo(this.x + w, GY);
       for (let y = GY - 8 * SC; y > top + 3; y -= 9 * SC){ const q = (GY - y) / (GY - top) * sw; ctx.moveTo(this.x - w + q, y); ctx.lineTo(this.x + w + q, y); } };
-    path(); ctx.strokeStyle = world.id === 'kobito' || world.id === 'space' ? 'rgba(40,30,110,.35)' : 'rgba(255,255,255,.9)'; ctx.lineWidth = 5.5; ctx.stroke();
-    path(); ctx.strokeStyle = world.id === 'kobito' || world.id === 'space' ? '#fff' : INK; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
+    path(); ctx.strokeStyle = world.id === 'space' ? 'rgba(40,30,110,.35)' : 'rgba(255,255,255,.9)'; ctx.lineWidth = 5.5; ctx.stroke();
+    path(); ctx.strokeStyle = world.id === 'space' ? '#fff' : INK; ctx.lineWidth = 2; ctx.stroke(); ctx.restore(); }
   hit(x, y){ return Math.abs(x - this.x) < 14 * SC && y > this.top - 6 && y < GY; }
   tap(){ this.wob = .6; sfx.plip(); }
   hold(p){ this.x = clamp(p.x, 20, W - 20); this.top = clamp(p.y, 40, GY - 50); }
@@ -1318,9 +1316,10 @@ function fillPattern(c){
   if (patCache[c]) return patCache[c]; const T = 140, t = document.createElement('canvas'); t.width = t.height = T; const g = t.getContext('2d');
   g.fillStyle = c === WHITE ? 'rgba(255,255,255,.85)' : rgba(c, .28); g.fillRect(0, 0, T, T);
   g.strokeStyle = c === WHITE ? 'rgba(60,60,110,.72)' : mix(c, -.35); g.lineWidth = 1.8; g.lineCap = 'round'; g.lineJoin = 'round';
-  for (let w = 0; w < 24; w++){ let x = rand(0, T), y = rand(0, T), a = rand(0, TAU); const pts = [[x, y]];
-    for (let k = 0; k < 16; k++){ a += rand(-.9, .9); x += Math.cos(a) * 4; y += Math.sin(a) * 4; pts.push([x, y]); }
-    for (const ox of [-T, 0, T]) for (const oy of [-T, 0, T]){ g.beginPath(); pts.forEach(([px, py], i) => i ? g.lineTo(px + ox, py + oy) : g.moveTo(px + ox, py + oy)); g.stroke(); } }
+  const ink = c === WHITE ? 'rgba(90,80,150,.55)' : mix(c, -.3), soft = c === WHITE ? 'rgba(255,190,210,.8)' : mix(c, .45);
+  for (let row = 0; row < 5; row++) for (let col = 0; col < 5; col++){ const x = col * 28 + (row % 2) * 14 + 7, y = row * 28 + 7;
+    if ((row + col) % 3 === 0){ g.fillStyle = soft; g.strokeStyle = ink; g.lineWidth = 1.4; g.beginPath(); for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 2.6 : 6; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } g.closePath(); g.fill(); g.stroke(); }
+    else { g.fillStyle = ink; g.beginPath(); g.arc(x, y, 3.2, 0, TAU); g.fill(); } }
   return (patCache[c] = ctx.createPattern(t, 'repeat'));
 }
 function decoPts(L){ if (L.deco && L.deco.len === L.len) return L.deco; const o = []; for (let d = 0; d < L.len; d += 8) o.push(pointAt(L, d)); o.len = L.len; return (L.deco = o); }
@@ -1491,39 +1490,41 @@ let seaweed = [], spaceStars = [];
    ========================================================= */
 const LAND = {g: 1300, drag: .02, ground: true};
 const WORLDS = {
-  kobito: {
-    label: 'こびと', tabFig: 'kobito', penIc: 'pencil', penLabel: 'せん', phys: LAND, walkerCap: 34,
-    hint: 'せんの いろで ちからが かわるよ。シャボンだまを わってみよう',
-    stamps: [{id: 'bean', ic: 'bean', label: 'まめ'}, {id: 'ladder', ic: 'ladder', label: 'はしご'}, {id: 'kobito', fig: 'kobito', label: 'こびと'}],
+  mame: {
+    label: 'まめっこ', tabFig: 'mame', penIc: 'pencil', penLabel: 'せん', phys: LAND, walkerCap: 34,
+    hint: 'まめっこは まめを ひろって はたけに うえるよ。せんの いろで ちからが かわる',
+    stamps: [{id: 'bean', ic: 'bean', label: 'まめ'}, {id: 'ladder', ic: 'ladder', label: 'はしご'}, {id: 'mame', fig: 'mame', label: 'まめっこ'}],
     bg(g){
-      sky(g, [[0, '#e2e6fb'], [.6, '#e6e0fa'], [1, '#ebe4f8']], H);
-      g.save(); g.globalCompositeOperation = 'multiply';
-      const cols = ['#6c7cff', '#7b5cff', '#9f7bff', '#4f8dff', '#2f80ed', '#8a6dff', '#b28cff', '#16b5a3', '#5ec8e8'];
-      const n = Math.round(W / 38);
-      for (let i = 0; i < n; i++){ const x = rand(-40, W + 40), y = GY * (1.08 - Math.pow(Math.random(), 1.6) * .7), r = rand(55, 120) * splashR(), sp = makeSplash(x, y, r, pick(cols)); g.globalAlpha = rand(.5, .9); g.drawImage(sp.c, x - sp.pad, y - sp.pad); }
-      for (let i = 0; i < 9; i++){ const x = rand(0, W), y = GY * rand(.05, .45), r = rand(50, 95) * splashR(), sp = makeSplash(x, y, r, pick(cols)); g.globalAlpha = rand(.18, .38); g.drawImage(sp.c, x - sp.pad, y - sp.pad); }
-      const sun = makeSplash(W * .86, Math.min(H * .08, 70), 58 * splashR(), '#e8e05a'); g.globalAlpha = .85; g.drawImage(sun.c, W * .86 - sun.pad, Math.min(H * .08, 70) - sun.pad);
-      g.restore();
-      g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(0, GY, W, H - GY);
-      g.strokeStyle = 'rgba(40,30,110,.25)'; g.lineWidth = 6; g.beginPath(); for (let x = 0; x <= W; x += 10) g.lineTo(x, GY + Math.sin(x * .012) * 2); g.stroke();
-      g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 3; g.beginPath(); for (let x = 0; x <= W; x += 10) g.lineTo(x, GY + Math.sin(x * .012) * 2); g.stroke();
+      sky(g, [[0, '#fff3dc'], [.55, '#fdf2e6'], [1, '#f1f7e4']]);
+      const sx = W * .14, sy = Math.min(H * .15, 110); g.strokeStyle = 'rgba(242,183,5,.55)'; g.lineWidth = 4; g.lineCap = 'round';
+      for (let i = 0; i < 12; i++){ const a = i / 12 * TAU; g.beginPath(); g.moveTo(sx + Math.cos(a) * 52, sy + Math.sin(a) * 52); g.lineTo(sx + Math.cos(a) * 70, sy + Math.sin(a) * 70); g.stroke(); }
+      g.fillStyle = '#ffe08a'; g.beginPath(); g.arc(sx, sy, 40, 0, TAU); g.fill(); g.strokeStyle = 'rgba(210,150,20,.6)'; g.lineWidth = 3; g.stroke();
+      puffCloud(g, W * .62, H * .12, 22, 'rgba(255,255,255,.9)'); puffCloud(g, W * .86, H * .2, 16, 'rgba(255,255,255,.8)');
+      const hillC = ['#dcefc4', '#cbe7b2', '#b9dd9e'];
+      [[.2, .045, .0035, 1], [.12, .03, .006, 4], [.05, .02, .009, 2]].forEach(([o, amp, fq, ph], i) => { hill(g, GY - H * o, H * amp, fq, ph, hillC[i]);
+        g.strokeStyle = 'rgba(90,140,70,.18)'; g.lineWidth = 1.5; for (let x = 0; x < W; x += 9){ const y = GY - H * o + Math.sin(x * fq + ph) * H * amp + 10; if (Math.random() < .5){ g.beginPath(); g.moveTo(x, y + 4); g.lineTo(x + 3, y); g.stroke(); } } });
+      for (let i = 0; i < W / 70; i++){ const x = rand(0, W), y = GY - rand(8, H * .1); g.fillStyle = pick(['#ffb3c8', '#fff', '#ffd966', '#c9b6ff']); for (let k = 0; k < 5; k++){ const a = k / 5 * TAU; g.beginPath(); g.arc(x + Math.cos(a) * 3, y + Math.sin(a) * 3, 2.2, 0, TAU); g.fill(); } g.fillStyle = '#f2b705'; g.beginPath(); g.arc(x, y, 1.6, 0, TAU); g.fill(); }
+      g.fillStyle = '#b98a62'; g.fillRect(0, GY, W, H - GY);
+      g.strokeStyle = 'rgba(120,80,50,.35)'; g.lineWidth = 3; for (let y = GY + 14; y < H; y += 16){ g.beginPath(); for (let x = 0; x <= W; x += 20) g.lineTo(x, y + Math.sin(x * .02 + y) * 2); g.stroke(); }
+      g.fillStyle = '#86c26f'; g.beginPath(); g.moveTo(0, GY + 4); for (let x = 0; x <= W; x += 12) g.lineTo(x, GY + (x / 12 % 2 ? -4 : 4)); g.lineTo(W, GY + 7); g.lineTo(0, GY + 7); g.fill();
     },
     drawLine(L, a){ inkLine(L, a); },
-    onLineDone(L){ if (Math.random() < .6){ const w = new Walker('kobito', L.pts[0].x, L.pts[0].y - 40, {air: true}); E.push(w); capWalkers(); } sfx.arp(); },
+    onLineDone(L){ if (Math.random() < .6){ const w = new Walker('mame', L.pts[0].x, L.pts[0].y - 40, {air: true}); E.push(w); capWalkers(); } sfx.arp(); },
     onStamp(id, x, y){
       if (id === 'bean'){ for (let i = 0; i < 5; i++) E.push(new Prop('bean', x + rand(-16, 16), Math.min(y, GY - 10) + rand(-8, 8), {vx: rand(-90, 90), vy: -rand(0, 120)})); capOldest(Prop, 40, p => p.kind === 'bean'); sfx.plip(); }
       else if (id === 'ladder'){ E.push(new Ladder(x, y)); capOldest(Ladder, 6); sfx.plip(); }
-      else { for (let i = 0; i < 3; i++) E.push(new Walker('kobito', x + rand(-20, 20), Math.min(y, GY - 40) - i * 16, {air: true, accent: pick(PALETTE)})); capWalkers(); burst(x, y, '#ffffff', 8, 140); sfx.pop(); }
+      else { for (let i = 0; i < 3; i++) E.push(new Walker('mame', x + rand(-20, 20), Math.min(y, GY - 40) - i * 16, {air: true, accent: pick(PALETTE)})); capWalkers(); burst(x, y, '#ffffff', 8, 140); sfx.pop(); }
     },
-    onSplash(s){ for (const e of E) if (e instanceof Walker && e.kind === 'kobito' && dist(e.x, e.y - 18, s.x, s.y) < s.r * 2.2){ e.accent = s.color; if (e.state === 'walk') e.toAir(rand(-50, 50), -jumpV(40 * SC)); } },
+    onSplash(s){ for (const e of E) if (e instanceof Walker && e.kind === 'mame' && dist(e.x, e.y - 15, s.x, s.y) < s.r * 2.2){ e.accent = s.color; if (e.state === 'walk') e.toAir(rand(-50, 50), -jumpV(40 * SC)); } },
     seed(){
+      addSplash(W * .42, GY * .32, 70 * splashR(), PALETTE[4], true); addSplash(W * .78, GY * .5, 60 * splashR(), PALETTE[2], true);
       const L = lineFrom(bez({x: W * .3, y: GY * .5}, {x: W * .48, y: GY * .2}, {x: W * .68, y: GY * .44}), WHITE);
       lineFrom(bez({x: W * .68, y: GY * .44 + 22}, {x: W * .82, y: GY * .52}, {x: W * .95, y: GY - 6}), '#2f80ed');
       lineFrom([{x: W * .06, y: GY * .72}, {x: W * .12, y: GY * .74}, {x: W * .18, y: GY * .72}], '#f2b705');
       const F = lineFrom(bez({x: W * .08, y: GY * .3}, {x: W * .16, y: GY * .15}, {x: W * .26, y: GY * .28}), '#ff5c8a'); flowerLine(F);
       E.push(new Ladder(W * .3, GY * .5)); E.push(new Ladder(W * .12, GY * .72 - 4));
-      for (let i = 0; i < 18; i++){ const w = new Walker('kobito', rand(30, W - 30), GY, {pop: 1, accent: pick(PALETTE)}); E.push(w); }
-      const w2 = new Walker('kobito', 0, 0, {pop: 1, accent: '#ff5c8a'}); w2.state = 'walk'; w2.surf = {L, d: L.len * .3, dir: 1}; w2.face = 1; E.push(w2);
+      for (let i = 0; i < 16; i++) E.push(new Walker('mame', rand(30, W - 30), GY, {pop: 1, accent: pick(PALETTE)}));
+      const w2 = new Walker('mame', 0, 0, {pop: 1, accent: '#ff5c8a'}); w2.state = 'walk'; w2.surf = {L, d: L.len * .3, dir: 1}; w2.face = 1; E.push(w2);
       for (let i = 0; i < 12; i++) E.push(new Prop('bean', rand(W * .15, W * .9), GY - 6));
       E.push(new PaintBubble(W * .45, GY * .6)); E.push(new PaintBubble(W * .78, GY * .3));
     },
@@ -1810,13 +1811,13 @@ function spawnSavedDoodles(){ myDrawings.slice(-6).forEach(d => { if (d.img.comp
 /* =========================================================
    world state & UI
    ========================================================= */
-let worldId = 'kobito';
+let worldId = 'mame';
 try { const s = localStorage.getItem('yubisaki-world'); if (s && WORLDS[s]) worldId = s; } catch (e) {}
 let world = WORLDS[worldId];
 let tool = 'pen';
 
 const FIG_ICON = {
-  kobito: {k: 2.5, x: .5, y: .97, halo: 'rgba(43,39,69,.9)', ink: '#fff', accent: '#ff5c8a'},
+  mame: {k: 2.6, x: .5, y: .94, accent: '#ff8fb1'},
   giraffe: {k: .95, x: .42, y: .98}, trex: {k: 1.05, x: .56, y: .9}, octopus: {k: 2, x: .5, y: .45, center: true}, elephant: {k: 1.35, x: .42, y: .86},
   fish: {k: 1.25, x: .58, y: .5, center: true, fish: true}, astronaut: {k: 1.7, x: .48, y: .93},
 };
