@@ -1421,12 +1421,17 @@ function kazuTick(dt){
       }
     }
   } else { kz.stallT = 0;
-    for (const v of [1, 10]) for (const sg of [1, -1]){ const G = beads.filter(b => b.v === v && b.sign === sg); if (G.length < 10) continue; busy = true;
-      const big = linkedClusters(G).find(c => c.length >= 10);
-      if (big && check){ const cx = big.reduce((a, b) => a + b.b.x, 0) / big.length, cy = big.reduce((a, b) => a + b.b.y, 0) / big.length;
-        const ten = big.sort((a, c) => dist(a.b.x, a.b.y, cx, cy) - dist(c.b.x, c.b.y, cx, cy)).slice(0, 10), mx = ten.reduce((a, b) => a + b.b.x, 0) / 10, my = ten.reduce((a, b) => a + b.b.y, 0) / 10;
-        ten.forEach(b => b.merge = {x: mx, y: my}); kz.merges.push({beads: ten, v, sign: sg, x: mx, y: my, t: 0}); sfx.whoosh(); return; }
-      if (!big){ const cx = G.reduce((a, b) => a + b.b.x, 0) / G.length, cy = G.reduce((a, b) => a + b.b.y, 0) / G.length; for (const b of G){ const d = dist(b.b.x, b.b.y, cx, cy) || 1; b.b.vx += (cx - b.b.x) / d * 260 * dt; b.b.vy += (cy - b.b.y) / d * 260 * dt; } } }
+    const comps = linkedClusters(beads); let wanting = false;
+    for (const v of [1, 10]) for (const sg of [1, -1]){
+      const G = beads.filter(b => b.v === v && b.sign === sg); if (G.length < 10) continue; busy = true; wanting = true;
+      // count within a touching pile of any beads, so a じゅう in the middle doesn't split the いち
+      let pick = null; for (const c of comps){ const g = c.filter(b => b.v === v && b.sign === sg); if (g.length >= 10){ pick = g; break; } }
+      if (!pick && kz.mstall > 1) pick = G;
+      if (pick && check){ const cx = pick.reduce((a, b) => a + b.b.x, 0) / pick.length, cy = pick.reduce((a, b) => a + b.b.y, 0) / pick.length;
+        const ten = pick.sort((a, c) => dist(a.b.x, a.b.y, cx, cy) - dist(c.b.x, c.b.y, cx, cy)).slice(0, 10), mx = ten.reduce((a, b) => a + b.b.x, 0) / 10, my = ten.reduce((a, b) => a + b.b.y, 0) / 10;
+        ten.forEach(b => b.merge = {x: mx, y: my}); kz.merges.push({beads: ten, v, sign: sg, x: mx, y: my, t: 0}); kz.mstall = 0; sfx.whoosh(); return; }
+    }
+    if (wanting) kz.mstall = (kz.mstall || 0) + dt; else kz.mstall = 0;
   }
   const moving = beads.some(b => Math.hypot(b.b.vx, b.b.vy) > 30);
   if (busy || moving) kz.calmT = 0; else kz.calmT += dt;
