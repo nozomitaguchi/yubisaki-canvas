@@ -59,6 +59,7 @@
   .sys svg{width:22px;height:22px}
 
   .dock{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:30px;box-shadow:var(--shadow);max-width:calc(100% - 24px)}
+  .dock.bare .palette{display:none}
   .palette{display:flex;gap:7px;padding:0 10px 0 6px;border-right:1px solid var(--hair)}
   .sw{width:32px;height:32px;border-radius:50%;border:0;background:var(--g,none) center/70% no-repeat,var(--c);box-shadow:inset 0 0 0 3px rgba(255,255,255,.55);transition:transform .15s}
   .sw[aria-pressed="true"]{box-shadow:0 0 0 3px #fff,0 0 0 6px var(--c);transform:scale(1.08)}
@@ -69,6 +70,8 @@
   .tool{white-space:nowrap;width:56px;height:56px;border:0;border-radius:20px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;font-weight:700;color:var(--muted);transition:background .15s,transform .15s}
   .tool[aria-pressed="true"]{background:var(--glass-strong);color:var(--ink);box-shadow:inset 0 0 0 3px var(--cur)}
   .tool:active{transform:scale(.94)}
+  .tool.bump{animation:bump .3s}
+  @keyframes bump{40%{transform:scale(1.15)}}
   .tool.own{margin-left:6px;background:var(--ink);color:#fff;border-radius:20px}
   .tool.own .ic img{filter:drop-shadow(0 0 1px rgba(255,255,255,.6))}
 
@@ -1974,8 +1977,8 @@ const WORLDS = {
   },
 };
 WORLDS.kazu = {
-  label: 'まるまる', ic: 'beads', penIc: 'pencil', penLabel: 'せん', phys: {g: 1900, drag: .06, ground: true}, noBubbles: true,
-  stamps: [{id: 'one', ic: 'bead1', label: 'いち'}, {id: 'ten', ic: 'bead10', label: 'じゅう'}, {id: 'empty', ic: 'bowl', label: 'からっぽ'}],
+  label: 'まるまる', ic: 'beads', penIc: 'pencil', penLabel: 'せん', phys: {g: 1900, drag: .06, ground: true}, noBubbles: true, bare: true, defaultTool: 'one',
+  stamps: [{id: 'one', ic: 'bead1', label: 'いち'}, {id: 'ten', ic: 'bead10', label: 'じゅう'}, {id: 'empty', ic: 'bowl', label: 'からっぽ', act: true}],
   bg(g){
     const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#dff3f8'); gr.addColorStop(1, '#c4e7f1'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
     for (let i = 0; i < 26; i++){ const r = rand(8, 46); g.fillStyle = 'rgba(255,255,255,.28)'; g.beginPath(); g.arc(rand(0, W), rand(0, H), r, 0, TAU); g.fill(); g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; g.stroke(); }
@@ -2145,8 +2148,8 @@ WORLDS.sweets = {
   },
 };
 WORLDS.clock = {
-  label: 'とけい', ic: 'clock', penIc: 'pencil', penLabel: 'せん', phys: LAND, noBubbles: true,
-  stamps: [{id: 'now', ic: 'clock', label: 'いま'}, {id: 'plus', ic: 'plus1', label: '1じかん'}, {id: 'mins', ic: 'mins', label: 'ふん'}],
+  label: 'とけい', ic: 'clock', penIc: 'pencil', penLabel: 'せん', phys: LAND, noBubbles: true, bare: true, defaultTool: 'none',
+  stamps: [{id: 'now', ic: 'clock', label: 'いま', act: true}, {id: 'plus', ic: 'plus1', label: '1じかん', act: true}, {id: 'mins', ic: 'mins', label: 'ふん', act: true}],
   under(){ const h = clk.t / 60, [top, bot] = skyAt(h); const gr = ctx.createLinearGradient(0, 0, 0, GY); gr.addColorStop(0, top); gr.addColorStop(1, bot); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
     const night = h < 5.5 || h > 19.5 ? 1 : h < 6.5 ? (6.5 - h) : h > 18.5 ? (h - 18.5) : 0;
     if (night > 0){ ctx.fillStyle = `rgba(255,248,210,${.8 * night})`; for (let i = 0; i < 60; i++){ const x = (i * 97.3) % W, y = (i * 53.7) % (GY * .7); ctx.beginPath(); ctx.arc(x, y, (i % 3) * .6 + .8, 0, TAU); ctx.fill(); } }
@@ -2170,7 +2173,7 @@ WORLDS.clock = {
     E.push(new ClockFace()); },
 };
 WORLDS.shape = {
-  label: 'かたち', ic: 'shapes', penIc: 'pencil', penLabel: 'かたち', phys: LAND,
+  label: 'かたち', ic: 'shapes', penIc: 'pencil', penLabel: 'かたち', phys: LAND, bare: true, bareTools: ['pen', 'erase'],
   stamps: [{id: 'tri', ic: 'tri', label: 'さんかく'}, {id: 'sq', ic: 'sq', label: 'しかく'}, {id: 'circ', ic: 'circ', label: 'まる'}],
   bg(g){ g.fillStyle = '#fffdf6'; g.fillRect(0, 0, W, H);
     for (let x = 0; x < W; x += 32){ g.strokeStyle = x % 160 === 0 ? 'rgba(47,128,237,.2)' : 'rgba(47,128,237,.09)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, GY); g.stroke(); }
@@ -2232,7 +2235,7 @@ function spawnSavedDoodles(){ myDrawings.slice(-6).forEach(d => { if (d.img.comp
 let worldId = 'zoo';
 try { const s = localStorage.getItem('yubisaki-world'); if (s && WORLDS[s]) worldId = s; } catch (e) {}
 let world = WORLDS[worldId];
-let tool = 'pen';
+let tool = world.defaultTool || 'pen';
 
 const FIG_ICON = {
   mame: {k: 2.6, x: .5, y: .94, accent: '#ff8fb1'},
@@ -2370,13 +2373,16 @@ function buildWorldTabs(){
 function setTool(id){ tool = id; [...toolsEl.querySelectorAll('.tool[data-tool]')].forEach(c => c.setAttribute('aria-pressed', c.dataset.tool === tool)); }
 function buildTools(){
   toolsEl.innerHTML = '';
-  const list = [{id: 'pen', ic: world.penIc, label: world.penLabel}, {id: 'paint', ic: 'palette', label: 'いろ'}, {id: 'erase', ic: 'eraser', label: 'けしごむ'}, ...world.stamps];
+  dockEl.classList.toggle('bare', !!world.bare); /* まるまる: only the bead buttons, nothing else to get in the way */
+  const base = {pen: {id: 'pen', ic: world.penIc, label: world.penLabel}, paint: {id: 'paint', ic: 'palette', label: 'いろ'}, erase: {id: 'erase', ic: 'eraser', label: 'けしごむ'}};
+  const list = [...(world.bare ? (world.bareTools || []) : ['pen', 'paint', 'erase']).map(k => base[k]), ...world.stamps];
   for (const t of list){
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'tool'; b.id = 't-' + t.id; b.dataset.tool = t.id; b.setAttribute('aria-pressed', t.id === tool);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tool'; b.id = 't-' + t.id; if (!t.act){ b.dataset.tool = t.id; b.setAttribute('aria-pressed', t.id === tool); }
     b.setAttribute('aria-label', t.label); b.innerHTML = iconHTML(t.fig, t.ic);
-    b.addEventListener('click', () => { ensureAudio(); setTool(t.id); sfx.plip(); });
+    b.addEventListener('click', () => { ensureAudio(); if (t.act){ world.onStamp(t.id); b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump'); return; } setTool(t.id); sfx.plip(); });  /* act: a button that just does its thing */
     toolsEl.appendChild(b);
   }
+  if (world.bare) return;
   const own = document.createElement('button'); own.type = 'button'; own.className = 'tool own'; own.id = 't-own';
   own.setAttribute('aria-label', 'おえかき'); own.innerHTML = iconHTML(null, 'crayon'); own.addEventListener('click', openDrawer); toolsEl.appendChild(own);
 }
@@ -2401,10 +2407,11 @@ function buildPalette(){
 function shake(el){ if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); sfx.thud(); }
 
 function switchWorld(id){
+  stopDemo();
   worldId = id; world = WORLDS[id]; try { localStorage.setItem('yubisaki-world', id); } catch (e) {}
   [...worldsEl.children].forEach(b => b.setAttribute('aria-selected', b.id === 'w-' + id));
   const sel = document.getElementById('w-' + id); if (sel && sel.scrollIntoView) try { sel.scrollIntoView({inline: 'nearest', block: 'nearest'}); } catch (e) {}
-  tool = 'pen'; buildTools(); palEl.classList.toggle('noglyph', id === 'music'); active.clear(); numpadEl.hidden = id !== 'kazu';
+  tool = world.defaultTool || 'pen'; buildTools(); palEl.classList.toggle('noglyph', id === 'music'); active.clear(); numpadEl.hidden = id !== 'kazu';
   E = []; lines = []; S = []; P.length = 0; planets = []; wind.x = 0; gridDirty = true; bubT = 3;
   measure(); rebuildBg(); seeding = true; world.seed(); seeding = false; markPermanent(); spawnSavedDoodles(); startDemo(1.2);
 }
@@ -2461,6 +2468,7 @@ function onDownAt(e){
   if (tool === 'erase'){ const p = pos(e); active.set(e.pointerId, {mode: 'erase', last: p}); eraseAt(p); return; }
   const p = pos(e), h = hitTest(p), now = performance.now();
   if (h){ if (h.grab) active.set(e.pointerId, {mode: 'grab', ent: h, start: p, moved: false, hist: [{x: p.x, y: p.y, t: now}]}); else { h.tap(p); active.set(e.pointerId, {mode: 'none'}); } return; }
+  if (tool === 'none'){ active.set(e.pointerId, {mode: 'none'}); return; }
   if (tool === 'pen'){ const L = newLine(p); lines.push(L); active.set(e.pointerId, {mode: 'line', L, acc: 0}); }
   else if (tool === 'paint'){ addSplash(p.x, p.y, rand(55, 85) * splashR(), paintCol()); active.set(e.pointerId, {mode: 'paint', last: p}); }
   else { world.onStamp(tool, p.x, p.y); active.set(e.pointerId, {mode: 'stamp', last: p}); }
@@ -2536,7 +2544,7 @@ addEventListener('resize', resize);
    (really drawing / tapping / throwing), and again after the screen sits idle
    ========================================================= */
 const handEl = document.getElementById('hand');
-let demo = null, demoAt = 0, lastUser = -99, demoEnd = -99, demoQuiet = false;
+let demo = null, demoAt = 0, lastUser = 0, demoEnd = 0, demoQuiet = false;
 const IDLE_DEMO = 28;
 const fakeEv = (x, y) => ({fake: true, pointerId: 'demo', clientX: x, clientY: y, preventDefault(){}});
 function elCenter(sel){ const el = document.querySelector(sel); if (!el || el.offsetParent === null) return null; const r = el.getBoundingClientRect(); return {x: r.left + r.width / 2, y: r.top + r.height / 2}; }
