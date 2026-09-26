@@ -625,7 +625,7 @@ function rawAt(L, d){
   const t = (d - C[lo]) / ((C[hi] - C[lo]) || 1), a = Pn[lo], b = Pn[hi];
   return {x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t};
 }
-function pointAt(L, d){ const p = rawAt(L, d), q1 = rawAt(L, d - 7), q2 = rawAt(L, d + 7); p.a = Math.atan2(q2.y - q1.y, q2.x - q1.x); return p; }
+function pointAt(L, d){ const w = x => L.closed && L.len ? ((x % L.len) + L.len) % L.len : x; const p = rawAt(L, d), q1 = rawAt(L, w(d - 7)), q2 = rawAt(L, w(d + 7)); p.a = Math.atan2(q2.y - q1.y, q2.x - q1.x); return p; }
 function lineFrom(pts, c){ const L = {perm: seeding, pts, cum:[0], len:0, born:clock, done:true, doneAt:clock, color:c, power: POWER[c] || 'normal', grow:0, animGrow:false, dead:false, closed:false}; recalc(L); L.grow = L.len; lines.push(L); return L; }
 function lineAlpha(L){ if (L.perm || !L.done) return 1; return clamp(((L.dieAt !== undefined ? L.dieAt : L.doneAt + LIFE.line) + LIFE.lineFade - clock) / LIFE.lineFade, 0, 1); }
 function trace(L, maxD = Infinity){
@@ -1359,8 +1359,9 @@ class Rocket {
   update(dt){
     this.fl -= dt; this.boost = Math.max(0, this.boost - dt);
     if (this.state === 'ride'){ if (this.L.dead){ this.state = 'fly'; this.vx = Math.cos(this.a) * this.sp; this.vy = Math.sin(this.a) * this.sp; }
-      else { this.d += this.sp * (this.boost > 0 ? 1.8 : 1) * dt; const p = pointAt(this.L, Math.min(this.d, this.L.len)); this.x = p.x; this.y = p.y; this.a = p.a;
-        if (this.d >= this.L.len){ this.state = 'fly'; this.vx = Math.cos(this.a) * this.sp; this.vy = Math.sin(this.a) * this.sp; } } }
+      else { this.d += this.sp * (this.boost > 0 ? 1.8 : 1) * dt; if (this.L.closed) this.d %= this.L.len; /* a loop is an orbit: keep going round */
+        const p = pointAt(this.L, Math.min(this.d, this.L.len)); this.x = p.x; this.y = p.y; this.a = p.a;
+        if (!this.L.closed && this.d >= this.L.len){ this.state = 'fly'; this.vx = Math.cos(this.a) * this.sp; this.vy = Math.sin(this.a) * this.sp; } } }
     else { const k = 1 + dt * 1.2; this.vx *= k; this.vy *= k; this.x += this.vx * dt; this.y += this.vy * dt; this.a = Math.atan2(this.vy, this.vx);
       if (this.x < -120 || this.x > W + 120 || this.y < -120 || this.y > H + 120) this.dead = true; }
     if (this.fl <= 0){ this.fl = .03; const bx = this.x - Math.cos(this.a) * 22 * SC, by = this.y - Math.sin(this.a) * 22 * SC;
@@ -2501,6 +2502,7 @@ function endPointer(e){
     smooth(L); L.grow = L.len; L.done = true; L.doneAt = clock;
     const a0 = L.pts[0], a1 = L.pts[L.pts.length - 1];
     if (world.id !== 'ride' && L.len > (world.closeMin || 220) && dist(a0.x, a0.y, a1.x, a1.y) < 60 && world.onClosed){ L.pts.push({x: a0.x, y: a0.y}); recalc(L); world.onClosed(L); }
+    else if (world.id === 'space' && L.len > 220 && dist(a0.x, a0.y, a1.x, a1.y) < 70){ L.pts.push({x: a0.x, y: a0.y}); recalc(L); L.closed = true; }
     else if (world.id !== 'ride' && L.len > 220 && dist(a0.x, a0.y, a1.x, a1.y) < 60){
       L.pts.push({x: a0.x, y: a0.y}); recalc(L); L.closed = true; L.fill = fillPattern(L.color);
       const cx = L.pts.reduce((s2, q) => s2 + q.x, 0) / L.pts.length, cy = L.pts.reduce((s2, q) => s2 + q.y, 0) / L.pts.length; say(cx, cy, 'spark', L.color === WHITE ? INK : L.color); }
@@ -2562,7 +2564,7 @@ const DEMOS = {
   ride: () => D.draw(D.curve({x: W * .15, y: GY * .82}, {x: W * .45, y: GY * .35}, {x: W * .8, y: GY * .8}), 1.4),
   sea: () => [...D.click('#t-flake'), ...D.tap(W * .4, GY * .3), ...D.draw(D.curve({x: W * .2, y: GY * .7}, {x: W * .5, y: GY * .4}, {x: W * .8, y: GY * .7}))],
   garden: () => [...D.draw(D.curve({x: W * .25, y: GY * .9}, {x: W * .3, y: GY * .35}, {x: W * .6, y: GY * .4})), ...D.click('#t-seed'), ...D.tap(W * .7, GY * .4)],
-  space: () => [...D.draw(D.curve({x: W * .15, y: GY * .8}, {x: W * .5, y: GY * .1}, {x: W * .85, y: GY * .75}), 1.3), ...D.fling(pickWalker(w => w.state === 'air'))],
+  space: () => { const pts = []; for (let i = 0; i <= 44; i++){ const a = Math.PI * .9 + i / 44 * TAU; pts.push({x: W * .52 + Math.cos(a) * W * .3, y: GY * .5 + Math.sin(a) * GY * .32}); } return [...D.draw(pts, 1.8), ...D.fling(pickWalker(w => w.state === 'air'))]; },
   koro: () => [...D.draw([{x: W * .45, y: GY * .3}, {x: W * .7, y: GY * .5}], .8), ...D.click('#t-marble'), ...D.tap(W * .5, GY * .15)],
   music: () => [...D.draw([{x: W * .35, y: GY * .62}, {x: W * .62, y: GY * .7}], .8), ...D.click('#t-notes'), ...D.tap(W * .45, GY * .3)],
   snow: () => [...D.draw(D.curve({x: W * .3, y: GY * .3}, {x: W * .4, y: GY * .55}, {x: W * .65, y: GY * .62}), 1), ...D.click('#t-penguin'), ...D.tap(W * .32, GY * .2)],
