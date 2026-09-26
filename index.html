@@ -942,7 +942,7 @@ const PROPS = {
   star:{r:10, bounce:.95, fric:0, solid:true, life:60},
   jelly:{r:14, bounce:.3, fric:.02, gs:.18, drag:.4, life:1e9},
   bean:{r:4.5, bounce:.4, fric:.05, solid:true, life:150},
-  mbead:{r:17, bounce:.22, fric:.08, solid:true, life:1e9},
+  mbead:{r:17, bounce:.16, fric:.1, solid:true, life:1e9},
   marble:{r:11, bounce:.45, fric:.004, solid:true, life:70},
   note:{r:9, bounce:.55, fric:.01, solid:true, life:40},
   snowball:{r:12, bounce:.2, fric:.05, solid:true, life:110},
@@ -1478,7 +1478,7 @@ class NumBubble {
   constructor(n, sign, x, y){ this.n = n; this.sign = sign; this.x = x; this.y = y; this.vy = 0; this.t = rand(0, 9); this.r = (24 + Math.sqrt(n) * 7) * SC; this.pop = 0; this.z = 7.6; this.grab = true; this.held = false;
     this.slots = []; const tens = Math.floor(n / 10), ones = n % 10; for (let i = 0; i < tens; i++) this.slots.push(10); for (let i = 0; i < ones; i++) this.slots.push(1); }
   update(dt){ this.t += dt; this.pop = Math.min(1, this.pop + dt * 3); if (this.held) return;
-    this.vy = Math.min(this.vy + 220 * dt, 150); this.y += this.vy * dt; this.x += Math.sin(this.t * 2) * 12 * dt;
+    this.vy = Math.min(this.vy + 900 * dt, 560); this.y += this.vy * dt; this.x += Math.sin(this.t * 2) * 12 * dt;
     const bw = kz.bowl; if (bw && this.y + this.r * .3 >= bw.cy) this.burst(); if (this.y > GY) this.burst(); }
   draw(){ const s = easeBack(this.pop), r = this.r; ctx.save(); ctx.translate(this.x, this.y); ctx.scale(s, s);
     const k = this.slots.length, ring = r * .5;
@@ -1494,7 +1494,7 @@ class NumBubble {
   hold(p){ this.held = true; this.x = p.x; this.y = p.y; }
   release(vx){ this.held = false; this.vy = 0; }
   burst(){ if (this.dead) return; this.dead = true;
-    this.slots.forEach((v, i) => { const a = rand(0, TAU), d = rand(0, this.r * .5); E.push(new Bead(v, this.sign, this.x + Math.cos(a) * d, this.y + Math.sin(a) * d, {vx: Math.cos(a) * rand(40, 120), vy: rand(-60, 40)})); });
+    this.slots.forEach((v, i) => { const a = rand(0, TAU), d = rand(0, this.r * .5); E.push(new Bead(v, this.sign, this.x + Math.cos(a) * d, this.y + Math.sin(a) * d, {vx: Math.cos(a) * rand(40, 120), vy: this.vy * .6 + rand(-40, 60)})); });
     addP({kind: 'ring', x: this.x, y: this.y, life: .4, size: this.r * .6, color: '#fff'}); sfx.pop(); kz.calmT = 0; }
 }
 function removeBead(b){ b.dead = true; b.gone = true; }
@@ -1974,7 +1974,7 @@ const WORLDS = {
   },
 };
 WORLDS.kazu = {
-  label: 'まるまる', ic: 'beads', penIc: 'pencil', penLabel: 'せん', phys: {g: 1000, drag: .4, ground: true}, noBubbles: true,
+  label: 'まるまる', ic: 'beads', penIc: 'pencil', penLabel: 'せん', phys: {g: 1900, drag: .06, ground: true}, noBubbles: true,
   stamps: [{id: 'one', ic: 'bead1', label: 'いち'}, {id: 'ten', ic: 'bead10', label: 'じゅう'}, {id: 'empty', ic: 'bowl', label: 'からっぽ'}],
   bg(g){
     const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#dff3f8'); gr.addColorStop(1, '#c4e7f1'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
