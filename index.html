@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ゆびさきキャンバス</title>
-<meta name="description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅうの7つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
+<meta name="description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
 <meta name="theme-color" content="#e2e6fb">
 <link rel="canonical" href="https://nozomitaguchi.github.io/yubisaki-canvas/">
 <link rel="icon" type="image/png" href="./icon-192.png">
@@ -14,12 +14,12 @@
 <meta name="apple-mobile-web-app-title" content="ゆびさき">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ゆびさきキャンバス">
-<meta property="og:description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅうの7つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
+<meta property="og:description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
 <meta property="og:url" content="https://nozomitaguchi.github.io/yubisaki-canvas/">
 <meta property="og:image" content="https://nozomitaguchi.github.io/yubisaki-canvas/ogp.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ゆびさきキャンバス">
-<meta name="twitter:description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅうの7つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
+<meta name="twitter:description" content="線を描く・色を散らす・つまんで投げると、こびと・どうぶつ・きょうりゅう・のりもの・うみ・おはな・うちゅう・まるまるの8つの世界が動き出す、子ども向けのタッチ対応キャンバス。">
 <meta name="twitter:image" content="https://nozomitaguchi.github.io/yubisaki-canvas/ogp.png">
 <style>
   html{color-scheme:light}
@@ -68,6 +68,14 @@
   .tool.own{margin-left:6px;background:var(--ink);color:#fff;border-radius:20px}
   .tool.own .ic img{filter:drop-shadow(0 0 1px rgba(255,255,255,.6))}
 
+  .numpad{position:absolute;left:50%;transform:translateX(-50%);top:70px;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:5px;padding:6px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:28px;box-shadow:var(--shadow);max-width:calc(100% - 24px)}
+  .np-n{width:44px;height:44px;border:0;border-radius:50%;background:#FDE68A;box-shadow:inset 0 0 0 3px #CFA83A;color:var(--ink);font-weight:900;font-size:19px;font-variant-numeric:tabular-nums;transition:transform .12s}
+  .np-n.ten{background:#8DEBD8;box-shadow:inset 0 0 0 3px #24AFA3}
+  .numpad.minus .np-n{background:#a3abbf;box-shadow:inset 0 0 0 3px #5c667e;color:#fff}
+  .numpad.minus .np-n.ten{background:#86a3a1;box-shadow:inset 0 0 0 3px #4b6664}
+  .np-n:active{transform:scale(.9)}
+  .np-sign{height:44px;border:0;border-radius:999px;padding:0 14px;background:var(--ink);color:#fff;font-weight:900;font-size:16px;margin-right:4px}
+  .numpad.minus .np-sign{background:#5c667e}
   #toast{position:absolute;left:50%;top:calc(72px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:rgba(43,39,69,.86);color:#fff;font-weight:700;font-size:16px;letter-spacing:.04em;padding:10px 20px;border-radius:999px;pointer-events:none;opacity:0;transition:opacity .4s;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
   #toast.on{opacity:1}
 
@@ -104,6 +112,7 @@
     .ic,.ic img{width:28px;height:28px}
     #toast{font-size:14px;top:calc(122px + env(safe-area-inset-top,0px))}
   }
+  @media (max-width:560px){ .np-n{width:36px;height:36px;font-size:16px} .np-sign{height:36px;padding:0 10px;font-size:14px} .numpad{gap:4px;padding:5px} }
   @media (max-width:440px){ .worlds{gap:0;padding:4px} .worlds button{padding:4px 3px;min-height:42px} .sys button{width:42px;height:42px} .tool{width:45px;font-size:10px} .tools{gap:1px} .ic,.ic img{width:26px;height:26px} .tool .ic{font-size:21px} .sw{width:28px;height:28px} .palette{gap:6px} }
 </style>
 </head>
@@ -126,6 +135,7 @@
     </div>
   </header>
 
+  <div class="numpad" id="numpad" hidden aria-label="すうじ"></div>
   <div id="toast" role="status"></div>
 
   <div class="dock" id="dock">
@@ -838,6 +848,7 @@ const PROPS = {
   star:{r:10, bounce:.95, fric:0, solid:true, life:60},
   jelly:{r:14, bounce:.3, fric:.02, gs:.18, drag:.4, life:1e9},
   bean:{r:4.5, bounce:.4, fric:.05, solid:true, life:150},
+  mbead:{r:17, bounce:.22, fric:.08, solid:true, life:1e9},
 };
 class Prop {
   constructor(kind, x, y, o = {}){
@@ -926,7 +937,7 @@ class Prop {
   }
 }
 function propCollisions(){
-  const L = E.filter(e => e instanceof Prop && e.solid && !e.dead && !e.held);
+  const L = E.filter(e => e instanceof Prop && e.solid && !e.dead && !e.held && !e.merge);
   for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++){
     const a = L[i].b, c = L[j].b, dx = c.x - a.x, dy = c.y - a.y, R = a.r + c.r;
     if (Math.abs(dx) > R || Math.abs(dy) > R) continue; const d = Math.hypot(dx, dy);
@@ -1328,6 +1339,136 @@ function drawPower(L, a){
   ctx.restore();
 }
 
+/* ---------- まるまる: numbers as beads ---------- */
+const BEAD = {1: {r: 17, c: '#FDE68A', rim: '#CFA83A', sh: '#FFF7C7', name: 'いち'}, 10: {r: 25, c: '#8DEBD8', rim: '#24AFA3', sh: '#D9FFF6', name: 'じゅう'}, 100: {r: 33, c: '#7DD3FC', rim: '#0284C7', sh: '#DFF7FF', name: 'ひゃく'}};
+const NBEAD = {1: {c: '#a3abbf', rim: '#5c667e', sh: '#dde1ea'}, 10: {c: '#86a3a1', rim: '#4b6664', sh: '#d3e2e1'}, 100: {c: '#8499ad', rim: '#46607a', sh: '#d5e0ea'}};
+const kz = {stallT: 0, terms: [], free: false, calmT: 0, revealAt: 0, ct: 0, bowl: null, sign: 1, merges: [], eqY: 130, eqBottom: 230, sayT: 0};
+function drawBead(g, x, y, v, sign, sc = 1, scale = SC){
+  const d = BEAD[v], c = sign < 0 ? NBEAD[v] : d, r = d.r * scale * sc; if (r <= .5) return;
+  g.save(); g.translate(x, y); g.beginPath(); g.arc(0, 0, r, 0, TAU); g.fillStyle = c.c; g.fill(); g.lineWidth = Math.max(1.5, r * .14); g.strokeStyle = c.rim; g.stroke();
+  g.fillStyle = c.sh; g.beginPath(); g.ellipse(-r * .32, -r * .36, r * .32, r * .2, -.6, 0, TAU); g.fill();
+  if (v >= 10){ g.fillStyle = c.rim; g.font = `900 ${Math.round(r * (v >= 100 ? .7 : .92))}px ${FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(v), 0, r * .06); }
+  if (sign < 0 && v < 10){ g.strokeStyle = c.rim; g.lineWidth = Math.max(1.5, r * .16); g.lineCap = 'round'; g.beginPath(); g.moveTo(-r * .35, 0); g.lineTo(r * .35, 0); g.stroke(); }
+  g.restore();
+}
+class Bead extends Prop {
+  constructor(v, sign, x, y, o = {}){ super('mbead', x, y, o); this.v = v; this.sign = sign; this.b.r = BEAD[v].r * SC; this.merge = null; this.sc = o.grow ? 0 : 1; }
+  update(dt){ this.sc = Math.min(1, this.sc + dt * 4);
+    if (this.merge){ const m = this.merge; this.b.x += (m.x - this.b.x) * Math.min(1, dt * 9); this.b.y += (m.y - this.b.y) * Math.min(1, dt * 9); return; }
+    super.update(dt); if (this.dead && !this.gone) kz.free = true; }
+  draw(){ drawBead(ctx, this.b.x, this.b.y, this.v, this.sign, easeBack(this.sc) * (this.merge ? .85 : 1)); }
+  tap(){ if (this.v >= 10) breakBead(this); else { this.b.vy -= jumpV(45 * SC); this.b.vx += rand(-60, 60); sfx.plip(); } }
+}
+class NumBubble {
+  constructor(n, sign, x, y){ this.n = n; this.sign = sign; this.x = x; this.y = y; this.vy = 0; this.t = rand(0, 9); this.r = (24 + Math.sqrt(n) * 7) * SC; this.pop = 0; this.z = 7.6; this.grab = true; this.held = false;
+    this.slots = []; const tens = Math.floor(n / 10), ones = n % 10; for (let i = 0; i < tens; i++) this.slots.push(10); for (let i = 0; i < ones; i++) this.slots.push(1); }
+  update(dt){ this.t += dt; this.pop = Math.min(1, this.pop + dt * 3); if (this.held) return;
+    this.vy = Math.min(this.vy + 220 * dt, 150); this.y += this.vy * dt; this.x += Math.sin(this.t * 2) * 12 * dt;
+    const bw = kz.bowl; if (bw && this.y + this.r * .3 >= bw.cy) this.burst(); if (this.y > GY) this.burst(); }
+  draw(){ const s = easeBack(this.pop), r = this.r; ctx.save(); ctx.translate(this.x, this.y); ctx.scale(s, s);
+    const k = this.slots.length, ring = r * .5;
+    this.slots.forEach((v, i) => { const a = i / Math.max(1, k) * TAU + this.t * .6, d = k === 1 ? 0 : ring * (v >= 10 ? .35 : 1); drawBead(ctx, Math.cos(a) * d, Math.sin(a) * d, v, this.sign, .62); });
+    const gr = ctx.createRadialGradient(-r * .3, -r * .3, r * .1, 0, 0, r); gr.addColorStop(0, 'rgba(255,255,255,.35)'); gr.addColorStop(.75, 'rgba(255,255,255,.08)'); gr.addColorStop(1, 'rgba(255,255,255,.45)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(120,190,220,.9)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.ellipse(-r * .42, -r * .45, r * .16, r * .09, -.7, 0, TAU); ctx.fill();
+    const lbl = (this.sign < 0 ? '−' : '') + this.n; ctx.font = `900 ${Math.round(15 * SC)}px ${FONT}`; const tw = ctx.measureText(lbl).width + 12 * SC;
+    rr(ctx, r * .55, r * .5, tw, 20 * SC, 10 * SC); ctx.fillStyle = this.sign < 0 ? '#5c667e' : INK; ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(lbl, r * .55 + tw / 2, r * .5 + 10.5 * SC); ctx.restore(); }
+  hit(x, y){ return dist(x, y, this.x, this.y) < this.r + 10; }
+  tap(){ this.burst(); }
+  hold(p){ this.held = true; this.x = p.x; this.y = p.y; }
+  release(vx){ this.held = false; this.vy = 0; }
+  burst(){ if (this.dead) return; this.dead = true;
+    this.slots.forEach((v, i) => { const a = rand(0, TAU), d = rand(0, this.r * .5); E.push(new Bead(v, this.sign, this.x + Math.cos(a) * d, this.y + Math.sin(a) * d, {vx: Math.cos(a) * rand(40, 120), vy: rand(-60, 40)})); });
+    addP({kind: 'ring', x: this.x, y: this.y, life: .4, size: this.r * .6, color: '#fff'}); sfx.pop(); kz.calmT = 0; }
+}
+function removeBead(b){ b.dead = true; b.gone = true; }
+function breakBead(b){ if (b.v < 10 || b.dead) return; kz.stallT = 0; removeBead(b); const v = b.v / 10;
+  for (let i = 0; i < 10; i++){ const a = i / 10 * TAU; E.push(new Bead(v, b.sign, b.b.x + Math.cos(a) * b.b.r * .6, b.b.y + Math.sin(a) * b.b.r * .6, {vx: Math.cos(a) * 150, vy: Math.sin(a) * 150 - 120, grow: true})); }
+  say(b.b.x, b.b.y - 40, `${BEAD[b.v].name}を くずすと ${BEAD[v].name}が 10こ`, BEAD[b.v].rim); addP({kind: 'ring', x: b.b.x, y: b.b.y, life: .4, size: b.b.r, color: '#fff'}); sfx.plip(); kz.calmT = 0; }
+function annihilate(a, c){ kz.stallT = 0; removeBead(a); removeBead(c); const x = (a.b.x + c.b.x) / 2, y = (a.b.y + c.b.y) / 2;
+  addP({kind: 'ring', x, y, life: .35, size: a.b.r, color: '#fff'}); burst(x, y, '#ffffff', 6, 120);
+  if (clock - kz.sayT > 1){ kz.sayT = clock; say(x, y - 30, 'ぱちっ', '#5c667e'); } sfx.pop(); kz.calmT = 0; }
+function linkedClusters(list){ const out = [], seen = new Set();
+  for (const s0 of list){ if (seen.has(s0)) continue; const cl = [], q = [s0]; seen.add(s0);
+    while (q.length){ const a = q.pop(); cl.push(a); for (const c of list) if (!seen.has(c) && dist(a.b.x, a.b.y, c.b.x, c.b.y) <= (a.b.r + c.b.r) * 1.35){ seen.add(c); q.push(c); } }
+    out.push(cl); } return out; }
+function kazuTick(dt){
+  for (const m of kz.merges){ m.t += dt; if (m.t > .5 && !m.done){ m.done = true; m.beads.forEach(removeBead); const nv = m.v * 10;
+    E.push(new Bead(nv, m.sign, m.x, m.y, {grow: true})); addP({kind: 'ring', x: m.x, y: m.y, life: .5, size: BEAD[nv].r * SC, color: BEAD[nv].c}); burst(m.x, m.y, BEAD[nv].c, 12, 200);
+    say(m.x, m.y - 46, `10こで ${BEAD[nv].name}！`, BEAD[nv].rim); sfx.arp(); } }
+  kz.merges = kz.merges.filter(m => !m.done);
+  for (const f of alive(Bead)) if (f.flyTo){ const t = f.flyTo; if (t.dead){ f.flyTo = null; f.merge = null; continue; }
+    f.merge = {x: t.b.x, y: t.b.y}; if (dist(f.b.x, f.b.y, t.b.x, t.b.y) < f.b.r + t.b.r){ f.flyTo = null; f.merge = null; annihilate(f, t); } }
+  const beads = alive(Bead).filter(b => !b.merge && !b.held);
+  let busy = kz.merges.length > 0 || alive(NumBubble).length > 0;
+  kz.ct -= dt; const check = kz.ct <= 0; if (check) kz.ct = .15;
+  const P = v => beads.filter(b => b.v === v && b.sign > 0), N = v => beads.filter(b => b.v === v && b.sign < 0);
+  const mixed = beads.some(b => b.sign > 0) && beads.some(b => b.sign < 0);
+  if (mixed){ busy = true; kz.stallT += dt;
+    if (kz.stallT > 1.2 && !alive(Bead).some(b => b.flyTo)){
+      let best = null; for (const n of beads) if (n.sign < 0) for (const q of beads) if (q.sign > 0 && q.v === n.v){ const d = dist(n.b.x, n.b.y, q.b.x, q.b.y); if (!best || d < best.d) best = {n, q, d}; }
+      if (best){ best.n.flyTo = best.q; best.n.merge = {x: best.q.b.x, y: best.q.b.y}; kz.stallT = 0; return; } }
+    for (const v of [1, 10, 100]){ const Pv = P(v), Nv = N(v);
+      if (Pv.length && Nv.length){
+        for (const n of Nv){ let best = null, bd = 1e9; for (const q of Pv){ if (q.dead) continue; const d = dist(n.b.x, n.b.y, q.b.x, q.b.y); if (d < bd){ bd = d; best = q; } }
+          if (!best || n.dead) continue;
+          if (bd < n.b.r + best.b.r + 5){ if (check) annihilate(n, best); }
+          else { const dx = (best.b.x - n.b.x) / bd, dy = (best.b.y - n.b.y) / bd; n.b.vx += dx * 520 * dt; n.b.vy += dy * 520 * dt; best.b.vx -= dx * 260 * dt; best.b.vy -= dy * 260 * dt; } }
+      } else if (check){
+        for (const [mine, other] of [[Nv, 1], [Pv, -1]]){ if (!mine.length) continue;
+          const big = beads.find(b => b.sign === other && b.v > v); if (big){ breakBead(beads.filter(b => b.sign === other && b.v > v).sort((a, c) => a.v - c.v)[0]); return; } }
+      }
+    }
+  } else { kz.stallT = 0;
+    for (const v of [1, 10]) for (const sg of [1, -1]){ const G = beads.filter(b => b.v === v && b.sign === sg); if (G.length < 10) continue; busy = true;
+      const big = linkedClusters(G).find(c => c.length >= 10);
+      if (big && check){ const cx = big.reduce((a, b) => a + b.b.x, 0) / big.length, cy = big.reduce((a, b) => a + b.b.y, 0) / big.length;
+        const ten = big.sort((a, c) => dist(a.b.x, a.b.y, cx, cy) - dist(c.b.x, c.b.y, cx, cy)).slice(0, 10), mx = ten.reduce((a, b) => a + b.b.x, 0) / 10, my = ten.reduce((a, b) => a + b.b.y, 0) / 10;
+        ten.forEach(b => b.merge = {x: mx, y: my}); kz.merges.push({beads: ten, v, sign: sg, x: mx, y: my, t: 0}); sfx.whoosh(); return; }
+      if (!big){ const cx = G.reduce((a, b) => a + b.b.x, 0) / G.length, cy = G.reduce((a, b) => a + b.b.y, 0) / G.length; for (const b of G){ const d = dist(b.b.x, b.b.y, cx, cy) || 1; b.b.vx += (cx - b.b.x) / d * 260 * dt; b.b.vy += (cy - b.b.y) / d * 260 * dt; } } }
+  }
+  const moving = beads.some(b => Math.hypot(b.b.vx, b.b.vy) > 30);
+  if (busy || moving) kz.calmT = 0; else kz.calmT += dt;
+  if (kz.calmT > .5 && !kz.revealAt) kz.revealAt = clock;
+  if (kz.calmT === 0) kz.revealAt = 0;
+}
+function pressNumber(n){
+  if (worldId !== 'kazu') return; const bw = kz.bowl; if (!bw) return;
+  kz.terms.push(kz.sign * n); if (kz.terms.length > 8) kz.free = true;
+  const k = alive(NumBubble).length;
+  E.push(new NumBubble(n, kz.sign, bw.cx + rand(-bw.R * .25, bw.R * .25) + (k % 2 ? 30 : -30) * SC, kz.eqBottom + 40 * SC - k * 12));
+  if (alive(Bead).length > 150) capOldest(Bead, 150);
+  tone(PENTA[Math.min(8, n - 1)], .3, 'triangle', .07);
+}
+function emptyBowl(){ for (const e of E) if (e instanceof Bead || e instanceof NumBubble){ if (e instanceof Bead) burst(e.b.x, e.b.y, BEAD[e.v].c, 3, 90); e.dead = true; e.gone = true; }
+  kz.terms = []; kz.free = false; kz.merges = []; kz.calmT = 0; kz.revealAt = 0; sfx.whoosh(); }
+function eqText(){ return kz.terms.map((t, i) => i ? (t > 0 ? ' ＋ ' : ' － ') + Math.abs(t) : (t < 0 ? '－' : '') + Math.abs(t)).join(''); }
+function kazuOverlay(){
+  const beads = alive(Bead), any = beads.length || alive(NumBubble).length, calm = kz.revealAt > 0;
+  let total = 0; for (const b of beads) total += b.v * b.sign;
+  const cx = W / 2, y = kz.eqY + 34 * SC, fs = Math.round(38 * SC);
+  let main, ans = null;
+  if (!any && !kz.terms.length){ main = 'すうじを おしてね'; }
+  else if (kz.free || !kz.terms.length){ main = 'ぜんぶで '; ans = calm ? String(total).replace('-', '－') : '？'; }
+  else { main = eqText() + ' ＝ '; ans = calm ? String(total).replace('-', '－') : '？'; }
+  ctx.save(); ctx.font = `900 ${fs}px ${FONT}`; ctx.textBaseline = 'middle';
+  const mw = ctx.measureText(main).width, aw = ans ? ctx.measureText(ans).width : 0, tw = mw + aw, pw = tw + 40 * SC, ph = fs + 26 * SC;
+  rr(ctx, cx - pw / 2, y - ph / 2, pw, ph, ph / 2); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fill(); ctx.strokeStyle = 'rgba(120,190,220,.6)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.textAlign = 'left'; ctx.fillStyle = ans === null ? '#6a6485' : INK; if (ans === null) ctx.font = `700 ${Math.round(fs * .7)}px ${FONT}`;
+  const x0 = cx - (ans === null ? ctx.measureText(main).width : tw) / 2; ctx.fillText(main, x0, y);
+  if (ans !== null){ const pop = calm ? easeBack(Math.min(1, (clock - kz.revealAt) * 3)) : 1 + Math.sin(clock * 5) * .06;
+    ctx.save(); ctx.translate(x0 + mw + aw / 2, y); ctx.scale(pop, pop); ctx.textAlign = 'center'; ctx.fillStyle = calm ? (total < 0 ? '#5c667e' : '#e0782f') : '#b7b1cf'; ctx.fillText(ans, 0, 0); ctx.restore(); }
+  if (calm && beads.length){
+    const parts = []; for (const v of [100, 10, 1]) for (const sg of [1, -1]){ const n = beads.filter(b => b.v === v && b.sign === sg).length; if (n) parts.push([v, sg, n]); }
+    ctx.font = `700 ${Math.round(16 * SC)}px ${FONT}`; const gap = 14 * SC, br = 11 * SC;
+    const widths = parts.map(([v, sg, n]) => br * 2 + 6 + ctx.measureText(`${sg < 0 ? 'マイナス' : ''}${BEAD[v].name} ${n}こ`).width);
+    let x = cx - (widths.reduce((a, b) => a + b, 0) + gap * (parts.length - 1)) / 2; const yy = y + ph / 2 + 18 * SC;
+    parts.forEach(([v, sg, n], i) => { drawBead(ctx, x + br, yy, v, sg, br / (BEAD[v].r * SC)); ctx.fillStyle = INK; ctx.textAlign = 'left'; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(255,255,255,.9)';
+      const t = `${sg < 0 ? 'マイナス' : ''}${BEAD[v].name} ${n}こ`; ctx.strokeText(t, x + br * 2 + 6, yy); ctx.fillText(t, x + br * 2 + 6, yy); x += widths[i] + gap; }); }
+  ctx.restore();
+}
+
 /* =========================================================
    backgrounds
    ========================================================= */
@@ -1602,11 +1743,42 @@ const WORLDS = {
     },
   },
 };
+WORLDS.kazu = {
+  label: 'まるまる', ic: 'beads', penIc: 'pencil', penLabel: 'せん', phys: {g: 1000, drag: .4, ground: true}, noBubbles: true,
+  hint: '10こ あつまると じゅうに なるよ。じゅうを タッチすると くずれるよ',
+  stamps: [{id: 'one', ic: 'bead1', label: 'いち'}, {id: 'ten', ic: 'bead10', label: 'じゅう'}, {id: 'empty', ic: 'bowl', label: 'からっぽ'}],
+  bg(g){
+    const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#dff3f8'); gr.addColorStop(1, '#c4e7f1'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < 26; i++){ const r = rand(8, 46); g.fillStyle = 'rgba(255,255,255,.28)'; g.beginPath(); g.arc(rand(0, W), rand(0, H), r, 0, TAU); g.fill(); g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5; g.stroke(); }
+    g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, GY, W, H - GY);
+    g.strokeStyle = 'rgba(120,190,220,.55)'; g.lineWidth = 3; g.beginPath(); g.moveTo(0, GY); g.lineTo(W, GY); g.stroke();
+  },
+  drawLine(L, a){
+    if (L.bowl){ ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 14; trace(L); ctx.stroke(); ctx.strokeStyle = '#8fd0ea'; ctx.lineWidth = 8; trace(L); ctx.stroke(); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2.5; trace(L); ctx.stroke(); ctx.restore(); return; }
+    inkLine(L, a); },
+  onLineDone(){ sfx.arp(); },
+  onStamp(id, x, y){
+    if (id === 'empty'){ emptyBowl(); return; }
+    E.push(new Bead(id === 'ten' ? 10 : 1, kz.sign, x, Math.min(y, GY - 30), {grow: true})); kz.free = true; kz.calmT = 0; sfx.plip();
+  },
+  tick(dt){ kazuTick(dt); },
+  overlay(){ kazuOverlay(); },
+  seed(){
+    kz.terms = []; kz.free = false; kz.merges = []; kz.calmT = 0; kz.revealAt = 0; setSign(1);
+    const R0 = Math.max(80, Math.min(W * .28, 330, (GY - 10 - kz.eqBottom - 80) / .8)), cx = W / 2, cy = GY - 12 - R0 * .8;
+    kz.bowl = {cx, cy, R: R0};
+    const pts = [{x: cx + R0 + 14, y: cy - 10}]; for (let i = 0; i <= 56; i++){ const a = i / 56 * Math.PI; pts.push({x: cx + Math.cos(a) * R0, y: cy + Math.sin(a) * R0 * .8}); } pts.push({x: cx - R0 - 14, y: cy - 10});
+    const L = lineFrom(pts, WHITE); L.bowl = true;
+    kz.terms = [4, 9];
+    E.push(new NumBubble(4, 1, cx - 40 * SC, kz.eqBottom + 30 * SC)); E.push(new NumBubble(9, 1, cx + 40 * SC, kz.eqBottom - 50 * SC));
+  },
+};
 for (const [id, w] of Object.entries(WORLDS)) w.id = id;
 WORLDS.zoo.tabFig = 'giraffe'; WORLDS.dino.tabFig = 'trex'; WORLDS.sea.tabFig = 'fish';
 function trimFish(){ const fs = alive(Fish); for (let i = 0; i < fs.length - 55; i++) fs[i].dead = true; }
 function ttlFor(e){
   if (e instanceof Flower && e.vine) return Infinity;
+  if (e instanceof Bead || e instanceof NumBubble) return Infinity;
   if (e instanceof Train || e instanceof Rocket || e instanceof Gust || e instanceof Volcano) return Infinity;
   if (e instanceof Doodle) return LIFE.doodle;
   if (e instanceof Walker || e instanceof Fish || e instanceof Swimmer || e instanceof Flyer) return LIFE.creature;
@@ -1704,12 +1876,25 @@ const ICONS = {
   train: g => part(g, f => { f.shape('#2f80ed', 2.4, ['M', -34, 16, 'L', -34, -16, 'Q', -34, -24, -26, -24, 'L', 18, -24, 'Q', 36, -24, 36, -4, 'L', 36, 16, 'Z']);
     f.poly([[-34, 2], [36, 2], [36, 7], [-34, 7]], '#fff', 1, true); for (let i = 0; i < 3; i++) f.poly([[-28 + i * 14, -17], [-18 + i * 14, -17], [-18 + i * 14, -6], [-28 + i * 14, -6]], '#e8f4ff', 1.6);
     f.poly([[16, -17], [28, -17], [31, -6], [16, -6]], '#e8f4ff', 1.6); f.circ(-20, 18, 7, '#34324a'); f.circ(20, 18, 7, '#34324a'); f.dot(33, 10, 2.4, '#fff3a8'); }, 48, 46),
+  beads: g => { drawBead(g, 30, 62, 1, 1, .78, 1); drawBead(g, 56, 66, 1, 1, .78, 1); drawBead(g, 42, 42, 1, 1, .78, 1); drawBead(g, 64, 36, 10, 1, .92, 1); },
+  bead1: g => drawBead(g, 48, 48, 1, 1, 1.6, 1),
+  bead10: g => drawBead(g, 48, 48, 10, 1, 1.32, 1),
+  bowl: g => { g.lineCap = 'round'; const arc = () => { g.beginPath(); g.ellipse(48, 42, 36, 30, 0, 0, Math.PI); }; arc(); g.strokeStyle = 'rgba(43,39,69,.35)'; g.lineWidth = 11; g.stroke(); arc(); g.strokeStyle = '#8fd0ea'; g.lineWidth = 8; g.stroke(); arc(); g.strokeStyle = '#fff'; g.lineWidth = 2.5; g.stroke();
+    part(g, f => { f.star(0, 0, 9, 3, 4, '#fff3a8', 1.6); }, 70, 26); part(g, f => { f.star(0, 0, 6, 2, 4, '#fff3a8', 1.4); }, 30, 20); },
   tulip: g => part(g, f => { f.curve([0, 36], [2, 12], [0, -6], 3.4, '#4f9a55'); f.ell(-10, 20, 11, 4.5, -.9, '#72c06b'); f.ell(10, 14, 10, 4, .8, '#72c06b');
     f.ell(-9, -14, 9, 15, -.3, '#e84a7a'); f.ell(9, -14, 9, 15, .3, '#e84a7a'); f.ell(0, -16, 9, 17, 0, '#ff8fb1'); }, 48, 44),
 };
 function iconImg(name){ if (iconCache['i:' + name]) return iconCache['i:' + name]; const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); (ICONS[name] || ICONS.star)(g); return (iconCache['i:' + name] = c.toDataURL()); }
 const iconHTML = (fig, ic) => `<span class="ic" aria-hidden="true"><img alt="" src="${fig ? figIcon(fig) : iconImg(ic)}"></span>`;
 
+const numpadEl = document.getElementById('numpad');
+function setSign(sg){ kz.sign = sg; numpadEl.classList.toggle('minus', sg < 0); const b = document.getElementById('np-sign'); if (b) b.textContent = sg < 0 ? '− ひく' : '＋ たす'; }
+(function buildNumpad(){
+  const sb = document.createElement('button'); sb.type = 'button'; sb.className = 'np-sign'; sb.id = 'np-sign'; sb.textContent = '＋ たす'; sb.setAttribute('aria-label', 'たす と ひく を きりかえる');
+  sb.addEventListener('click', () => { ensureAudio(); setSign(-kz.sign); sfx.plip(); }); numpadEl.appendChild(sb);
+  for (let n = 1; n <= 10; n++){ const b = document.createElement('button'); b.type = 'button'; b.className = 'np-n' + (n === 10 ? ' ten' : ''); b.id = 'np-' + n; b.textContent = n;
+    b.addEventListener('click', () => { ensureAudio(); pressNumber(n); }); numpadEl.appendChild(b); }
+})();
 const worldsEl = document.getElementById('worlds'), toolsEl = document.getElementById('tools'), palEl = document.getElementById('palette'), toastEl = document.getElementById('toast'), dockEl = document.getElementById('dock');
 function buildWorldTabs(){
   worldsEl.innerHTML = '';
@@ -1744,12 +1929,16 @@ function toast(msg, ms = 4200){ toastEl.textContent = msg; toastEl.classList.add
 function switchWorld(id){
   worldId = id; world = WORLDS[id]; try { localStorage.setItem('yubisaki-world', id); } catch (e) {}
   [...worldsEl.children].forEach(b => b.setAttribute('aria-selected', b.id === 'w-' + id));
-  tool = 'pen'; buildTools(); active.clear();
+  tool = 'pen'; buildTools(); active.clear(); numpadEl.hidden = id !== 'kazu';
   E = []; lines = []; S = []; P.length = 0; planets = []; wind.x = 0; gridDirty = true; bubT = 3;
   measure(); rebuildBg(); seeding = true; world.seed(); seeding = false; markPermanent(); spawnSavedDoodles(); toast(world.hint);
 }
 
-function measure(){ const r = dockEl.getBoundingClientRect(); const top = r.top || H - 100; GY = Math.round(clamp(Math.min(H * .87, top - 14), H * .55, H - 60)); SC = clamp(Math.min(W, H) / 760, .72, 1.25); }
+function measure(){ const r = dockEl.getBoundingClientRect(); const top = r.top || H - 100; GY = Math.round(clamp(Math.min(H * .87, top - 14), H * .55, H - 60)); SC = clamp(Math.min(W, H) / 760, .72, 1.25);
+  const tb = Math.max(worldsEl.getBoundingClientRect().bottom, document.querySelector('.sys').getBoundingClientRect().bottom) + 8;
+  numpadEl.style.top = tb + 'px';
+  if (!numpadEl.hidden){ const nb = numpadEl.getBoundingClientRect().bottom; kz.eqY = nb + 10; kz.eqBottom = kz.eqY + 110 * SC; toastEl.style.top = (kz.eqBottom + 4) + 'px'; }
+  else toastEl.style.top = ''; }
 function resize(){ DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); measure(); rebuildBg();
   for (const e of E){ if (e.x !== undefined && e.x > W) e.x = W - 30; if (e.b && e.b.x > W) e.b.x = W - 30; } }
 function rebuildBg(){ bgc.width = Math.round(W * DPR); bgc.height = Math.round(H * DPR); bg.setTransform(DPR, 0, 0, DPR, 0, 0); world.bg(bg); paper(bg, world.id === 'space'); }
@@ -1906,7 +2095,7 @@ function update(dt){
   planets = world.phys.planets ? alive(Planet) : [];
   for (const L of lines){ if (L.done && !L.perm){ const al = lineAlpha(L); L.ghost = al < .3; if (al <= 0) L.dead = true; } if (L.animGrow && L.grow < L.len) L.grow = Math.min(L.len, L.grow + 280 * dt); }
   if (lines.some(L => L.dead)){ lines = lines.filter(L => !L.dead); gridDirty = true; }
-  bubT -= dt; if (bubT <= 0){ bubT = rand(3.5, 7); if (alive(PaintBubble).length < 4) E.push(new PaintBubble(rand(W * .08, W * .92), world.phys.ground ? GY - 20 : rand(GY * .3, GY * .9))); }
+  bubT -= dt; if (bubT <= 0){ bubT = rand(3.5, 7); if (!world.noBubbles && alive(PaintBubble).length < 4) E.push(new PaintBubble(rand(W * .08, W * .92), world.phys.ground ? GY - 20 : rand(GY * .3, GY * .9))); }
   let nl = 0; for (const a of active.values()) if (a.mode === 'line') nl++;
   if (nl >= 2) togetherT += dt; else togetherT = 0;
   if (togetherT > .8 && clock - lastParty > 7){ lastParty = clock; party(); }
@@ -1954,6 +2143,7 @@ function render(){
       default: ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1 - k * .5), 0, TAU); ctx.fill();
     }
     ctx.restore(); }
+  world.overlay && world.overlay();
   if (snap){ const k = (clock - snapAt) / 1.1; if (k >= 1) snap = null; else { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - k * k; ctx.drawImage(snap, 0, 0); ctx.restore(); } }
 }
 let last = performance.now();
@@ -1963,7 +2153,7 @@ function frame(t){ const dt = Math.min(.05, (t - last) / 1000); last = t; update
    boot
    ========================================================= */
 loadDrawings();
-buildWorldTabs(); buildPalette(); buildTools(); resize(); seeding = true; world.seed(); seeding = false; markPermanent(); spawnSavedDoodles(); toast(world.hint);
+buildWorldTabs(); buildPalette(); buildTools(); numpadEl.hidden = worldId !== 'kazu'; resize(); seeding = true; world.seed(); seeding = false; markPermanent(); spawnSavedDoodles(); toast(world.hint);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { const g = GY; measure(); if (g !== GY) rebuildBg(); });
 requestAnimationFrame(frame);
 })();
