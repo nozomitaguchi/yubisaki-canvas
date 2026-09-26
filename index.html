@@ -939,6 +939,7 @@ class Prop {
 function propCollisions(){
   const L = E.filter(e => e instanceof Prop && e.solid && !e.dead && !e.held && !e.merge);
   for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++){
+    if (L[i].v && L[j].v && L[i].v !== L[j].v) continue; // まる of different place values live on separate layers
     const a = L[i].b, c = L[j].b, dx = c.x - a.x, dy = c.y - a.y, R = a.r + c.r;
     if (Math.abs(dx) > R || Math.abs(dy) > R) continue; const d = Math.hypot(dx, dy);
     if (d < R && d > .01){ const nx = dx / d, ny = dy / d, ov = R - d, ma = a.r * a.r, mc = c.r * c.r, tot = ma + mc;
@@ -1340,6 +1341,7 @@ function drawPower(L, a){
 }
 
 /* ---------- まるまる: numbers as beads ---------- */
+const BEAD_ALPHA = {1: .72, 10: .8, 100: .86}, BEAD_Z = {1: 4.3, 10: 4.2, 100: 4.1};
 const BEAD = {1: {r: 17, c: '#FDE68A', rim: '#CFA83A', sh: '#FFF7C7', name: 'いち'}, 10: {r: 25, c: '#8DEBD8', rim: '#24AFA3', sh: '#D9FFF6', name: 'じゅう'}, 100: {r: 33, c: '#7DD3FC', rim: '#0284C7', sh: '#DFF7FF', name: 'ひゃく'}};
 const NBEAD = {1: {c: '#a3abbf', rim: '#5c667e', sh: '#dde1ea'}, 10: {c: '#86a3a1', rim: '#4b6664', sh: '#d3e2e1'}, 100: {c: '#8499ad', rim: '#46607a', sh: '#d5e0ea'}};
 const kz = {stallT: 0, terms: [], free: false, calmT: 0, revealAt: 0, ct: 0, bowl: null, sign: 1, merges: [], eqY: 130, eqBottom: 230, sayT: 0};
@@ -1352,11 +1354,11 @@ function drawBead(g, x, y, v, sign, sc = 1, scale = SC){
   g.restore();
 }
 class Bead extends Prop {
-  constructor(v, sign, x, y, o = {}){ super('mbead', x, y, o); this.v = v; this.sign = sign; this.b.r = BEAD[v].r * SC; this.merge = null; this.sc = o.grow ? 0 : 1; }
+  constructor(v, sign, x, y, o = {}){ super('mbead', x, y, o); this.v = v; this.sign = sign; this.z = BEAD_Z[v]; this.b.r = BEAD[v].r * SC; this.merge = null; this.sc = o.grow ? 0 : 1; }
   update(dt){ this.sc = Math.min(1, this.sc + dt * 4);
     if (this.merge){ const m = this.merge; this.b.x += (m.x - this.b.x) * Math.min(1, dt * 9); this.b.y += (m.y - this.b.y) * Math.min(1, dt * 9); return; }
     super.update(dt); if (this.dead && !this.gone) kz.free = true; }
-  draw(){ drawBead(ctx, this.b.x, this.b.y, this.v, this.sign, easeBack(this.sc) * (this.merge ? .85 : 1)); }
+  draw(){ ctx.save(); ctx.globalAlpha *= BEAD_ALPHA[this.v]; drawBead(ctx, this.b.x, this.b.y, this.v, this.sign, easeBack(this.sc) * (this.merge ? .85 : 1)); ctx.restore(); }
   tap(){ if (this.v >= 10) breakBead(this); else { this.b.vy -= jumpV(45 * SC); this.b.vx += rand(-60, 60); sfx.plip(); } }
 }
 class NumBubble {
