@@ -10,6 +10,8 @@
 <link rel="icon" type="image/png" href="./icon-192.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ゆびさき">
 <meta property="og:type" content="website">
@@ -86,6 +88,13 @@
   #hand.down svg{transform:scale(.88)}
   .shake{animation:shake .4s}
   @keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+  .guide{background:#fffdf8;border-radius:28px;box-shadow:0 20px 60px rgba(40,30,80,.35);padding:22px 24px;display:flex;align-items:center;gap:12px;color:var(--muted)}
+  .guide .gi{width:64px;height:64px;border-radius:18px;background:#f1eef9;display:grid;place-items:center}
+  .guide .gi svg{width:38px;height:38px}
+  .guide .gi.app{background:linear-gradient(#eaeefe 70%,#b9dfa3 70%)}
+  .guide .gi.app img{width:52px;height:52px}
+  .guide .ga{width:26px;height:26px}
+  .sys button[hidden]{display:none}
   /* drawing sheet */
   .modal{position:absolute;inset:0;background:rgba(35,30,60,.45);display:grid;place-items:center;padding:16px;z-index:10}
   .modal[hidden]{display:none}
@@ -158,6 +167,15 @@
     <div class="tools" id="tools" aria-label="どうぐ"></div>
   </div>
 
+  <div class="modal" id="homeguide" hidden role="dialog" aria-label="ホームがめんに ついかすると ぜんがめんで あそべるよ">
+    <div class="guide" aria-hidden="true">
+      <span class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="#2f80ed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9H6v11h12V9h-2"/><path d="M12 3v11M8.5 6.5 12 3l3.5 3.5"/></svg></span>
+      <svg class="ga" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+      <span class="gi"><svg viewBox="0 0 24 24" fill="none" stroke="#2b2745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg></span>
+      <svg class="ga" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+      <span class="gi app" id="guideapp"></span>
+    </div>
+  </div>
   <div class="modal" id="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="dr-title">
     <div class="sheet">
       <h2 id="dr-title" class="vh">じぶんの えを いれよう</h2>
@@ -2312,6 +2330,8 @@ const ICONS = {
   sq: g => part(g, f => f.poly([[-26, -26], [26, -26], [26, 26], [-26, 26]], rgba('#2f80ed', .3), 3.4), 48, 48),
   circ: g => part(g, f => f.circ(0, 0, 29, rgba('#16b5a3', .3), 3.4), 48, 48),
   shapes: g => part(g, f => { f.poly([[-16, -30], [4, 2], [-36, 2]], rgba('#ff7a2e', .35), 2.8); f.poly([[6, -12], [32, -12], [32, 14], [6, 14]], rgba('#2f80ed', .3), 2.8); f.circ(-8, 22, 14, rgba('#16b5a3', .3), 2.8); }, 50, 50),
+  eraser: g => part(g, f => { f.poly([[-30, -12], [14, -12], [14, 14], [-30, 14]], '#ff8fb1'); f.poly([[2, -12], [30, -12], [30, 14], [2, 14]], '#7cc3ff'); f.poly([[-8, -12], [2, -12], [2, 14], [-8, 14]], '#fff', 2);
+    f.dot(-34, 22, 2.4, 'rgba(43,39,69,.35)'); f.dot(-26, 26, 1.8, 'rgba(43,39,69,.35)'); f.dot(-38, 30, 1.6, 'rgba(43,39,69,.35)'); }, 50, 46, -.5),
   sun: g => part(g, f => { for (let i = 0; i < 8; i++){ const a = i / 8 * TAU; f.line([[Math.cos(a) * 24, Math.sin(a) * 24], [Math.cos(a) * 34, Math.sin(a) * 34]], 3.6, '#f2a900'); } f.circ(0, 0, 17, '#ffd24a'); f.dot(-6, -2, 2); f.dot(6, -2, 2); f.curve([-5, 5], [0, 9], [5, 5], 1.6); }, 48, 48),
   moon: g => part(g, f => { f.shape('#ffe27a', 2.4, ['M', 4, -30, 'Q', -30, -26, -26, 4, 'Q', -20, 30, 12, 28, 'Q', 22, 26, 28, 18, 'Q', -2, 20, -6, -4, 'Q', -8, -22, 4, -30, 'Z']); f.star(20, -16, 8, 3, 4, '#fff3a8', 1.6); f.star(26, 4, 5, 2, 4, '#fff3a8', 1.4); f.dot(-14, 0, 1.8); f.curve([-16, 8], [-12, 11], [-8, 8], 1.4); }, 48, 48),
   wake: g => part(g, f => { for (let i = 0; i < 5; i++){ const a = Math.PI + (i + 1) / 6 * Math.PI; f.line([[Math.cos(a) * 26, 10 + Math.sin(a) * 26], [Math.cos(a) * 36, 10 + Math.sin(a) * 36]], 3.4, '#f2a900'); }
@@ -2350,7 +2370,7 @@ function buildWorldTabs(){
 function setTool(id){ tool = id; [...toolsEl.querySelectorAll('.tool[data-tool]')].forEach(c => c.setAttribute('aria-pressed', c.dataset.tool === tool)); }
 function buildTools(){
   toolsEl.innerHTML = '';
-  const list = [{id: 'pen', ic: world.penIc, label: world.penLabel}, {id: 'paint', ic: 'palette', label: 'いろ'}, ...world.stamps];
+  const list = [{id: 'pen', ic: world.penIc, label: world.penLabel}, {id: 'paint', ic: 'palette', label: 'いろ'}, {id: 'erase', ic: 'eraser', label: 'けしごむ'}, ...world.stamps];
   for (const t of list){
     const b = document.createElement('button'); b.type = 'button'; b.className = 'tool'; b.id = 't-' + t.id; b.dataset.tool = t.id; b.setAttribute('aria-pressed', t.id === tool);
     b.setAttribute('aria-label', t.label); b.innerHTML = iconHTML(t.fig, t.ic);
@@ -2398,6 +2418,33 @@ function resize(){ DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWid
 function rebuildBg(){ bgc.width = Math.round(W * DPR); bgc.height = Math.round(H * DPR); bg.setTransform(DPR, 0, 0, DPR, 0, 0); world.bg(bg); paper(bg, world.id === 'space'); }
 
 /* =========================================================
+   eraser: rubs out lines (cutting them where the finger passes), paint and things.
+   The pieces a world can't work without (bowl, cup, clock, nest, volcano…) stay.
+   ========================================================= */
+let eraseSnd = 0;
+function eraseAt(p){
+  const R = 24 * SC; let hit = false;
+  for (const L of lines.slice()){
+    if (L.dead || L.perm || !L.done || p.x < L.x0 - R || p.x > L.x1 + R || p.y < L.y0 - R || p.y > L.y1 + R) continue;
+    if (!L.dense){ const out = [L.pts[0]]; for (let i = 1; i < L.pts.length; i++){ const a0 = L.pts[i - 1], a1 = L.pts[i], n = Math.ceil(dist(a0.x, a0.y, a1.x, a1.y) / 6); for (let k = 1; k <= n; k++) out.push({x: a0.x + (a1.x - a0.x) * k / n, y: a0.y + (a1.y - a0.y) * k / n}); }
+      L.pts = out; recalc(L); L.grow = L.len; L.dense = true; }
+    const inside = L.pts.map(q => dist(q.x, q.y, p.x, p.y) < R); if (!inside.some(Boolean)) continue;
+    hit = true; L.dead = true; gridDirty = true;
+    if (L.closed || L.shape || L.fill) continue;
+    const runs = []; let cur = null; L.pts.forEach((q, i) => { if (inside[i]){ cur = null; return; } if (!cur){ cur = {i0: i, pts: []}; runs.push(cur); } cur.pts.push({x: q.x, y: q.y}); });
+    for (const r of runs){ if (r.pts.length < 2) continue;
+      const N = {pts: r.pts, cum: [0], len: 0, born: L.born, done: true, doneAt: L.doneAt, dieAt: L.dieAt, seeded: L.seeded, color: L.color, power: L.power, grow: 0, animGrow: false, dead: false, closed: false}; recalc(N);
+      if (N.len < 16) continue; N.grow = N.len; lines.push(N); const d0 = L.cum[r.i0], d1 = L.cum[r.i0 + r.pts.length - 1];
+      for (const e of E) if (e instanceof Flower && e.vine === L && e.vd >= d0 && e.vd <= d1){ e.vine = N; e.vd -= d0; } } }
+  if (lines.some(L => L.dead)) lines = lines.filter(L => !L.dead);
+  for (const sp of S) if (!sp.perm && clock - sp.born < sp.life - .3 && dist(sp.x, sp.y, p.x, p.y) < sp.r * .9 + R){ sp.life = clock - sp.born + .3; sp.fade = .3; hit = true; }
+  for (const e of E) if (!e.dead && !e.held && e.hit && !isCore(e) && !(e instanceof ClockFace) && e.hit(p.x, p.y)){ const c = e.center ? e.center() : e.b ? {x: e.b.x, y: e.b.y} : {x: e.x, y: e.y};
+    e.dead = true; hit = true; for (let i = 0; i < 6; i++) addP({kind: 'puff', x: c.x + rand(-8, 8), y: c.y + rand(-8, 8), vx: rand(-50, 50), vy: rand(-60, -10), life: .5, size: rand(4, 7), color: '#fff'}); }
+  if (hit){ addP({x: p.x + rand(-6, 6), y: p.y + rand(-6, 6), vx: rand(-40, 40), vy: rand(20, 80), g: 400, life: .5, size: rand(1.5, 3), color: 'rgba(43,39,69,.45)'}); if (clock - eraseSnd > .12){ eraseSnd = clock; tone(rand(900, 1300), .05, 'triangle', .025); } }
+}
+function drawErasers(){ for (const a of active.values()) if (a.mode === 'erase'){ const R = 24 * SC; ctx.save(); ctx.beginPath(); ctx.arc(a.last.x, a.last.y, R, 0, TAU); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fill(); ctx.setLineDash([5, 6]); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(43,39,69,.45)'; ctx.stroke(); ctx.restore(); } }
+
+/* =========================================================
    input
    ========================================================= */
 const active = new Map();
@@ -2411,6 +2458,7 @@ function onDown(e){
   try { cv.setPointerCapture(e.pointerId); } catch (err) {}
   onDownAt(e); }
 function onDownAt(e){
+  if (tool === 'erase'){ const p = pos(e); active.set(e.pointerId, {mode: 'erase', last: p}); eraseAt(p); return; }
   const p = pos(e), h = hitTest(p), now = performance.now();
   if (h){ if (h.grab) active.set(e.pointerId, {mode: 'grab', ent: h, start: p, moved: false, hist: [{x: p.x, y: p.y, t: now}]}); else { h.tap(p); active.set(e.pointerId, {mode: 'none'}); } return; }
   if (tool === 'pen'){ const L = newLine(p); lines.push(L); active.set(e.pointerId, {mode: 'line', L, acc: 0}); }
@@ -2426,6 +2474,7 @@ function onMove(e){
     if (a.mode === 'grab'){ if (a.ent.dead) continue; const now = performance.now(); a.hist.push({x: p.x, y: p.y, t: now}); while (a.hist.length > 2 && now - a.hist[0].t > 100) a.hist.shift();
       if (!a.moved && dist(p.x, p.y, a.start.x, a.start.y) > 10){ a.moved = true; sfx.plip(); } if (a.moved) a.ent.hold(p); }
     else if (a.mode === 'line'){ const d = addPt(a.L, p); a.acc += d; if (a.acc > 70){ a.acc = 0; sfx.note(p.y); addP({x: p.x, y: p.y, vx: rand(-30, 30), vy: rand(-50, -10), life: .6, size: 3, color: '#fff'}); } }
+    else if (a.mode === 'erase'){ const d = dist(p.x, p.y, a.last.x, a.last.y), n = Math.ceil(d / 10); for (let i = 1; i <= n; i++) eraseAt({x: a.last.x + (p.x - a.last.x) * i / n, y: a.last.y + (p.y - a.last.y) * i / n}); a.last = p; }
     else if (a.mode === 'paint' && dist(p.x, p.y, a.last.x, a.last.y) > 60){ a.last = p; addSplash(p.x, p.y, rand(28, 46) * splashR(), paintCol()); }
     else if (a.mode === 'stamp' && world.dragStamp === tool && dist(p.x, p.y, a.last.x, a.last.y) > 34){ a.last = p; E.push(new Prop('bubble', p.x, Math.min(p.y, GY - 10))); }
   }
@@ -2465,9 +2514,21 @@ function resetWorld(){
 document.getElementById('clr').addEventListener('click', () => { ensureAudio(); resetWorld(); });
 const snd = document.getElementById('snd');
 snd.addEventListener('click', () => { muted = !muted; ensureAudio(); document.getElementById('wave').style.display = muted ? 'none' : ''; document.getElementById('mute').style.display = muted ? '' : 'none'; snd.setAttribute('aria-label', muted ? 'おとを だす' : 'おとを けす'); });
-document.getElementById('fs').addEventListener('click', () => {
-  try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else { const r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (r && r.catch) r.catch(() => shake(document.getElementById('fs'))); else if (!r) shake(document.getElementById('fs')); } } catch (e) {}
+/* full screen: real fullscreen where the browser allows it (Android Chrome, PC, iPad);
+   iPhone can't, so show a picture guide for "add to home screen" (opens with no browser bars) */
+const fsBtn = document.getElementById('fs'), homeEl = document.getElementById('homeguide');
+const standalone = () => matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+if (standalone()) fsBtn.hidden = true;
+fsBtn.addEventListener('click', () => {
+  const de = document.documentElement, req = de.requestFullscreen || de.webkitRequestFullscreen, can = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+  if (fsEl()){ (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+  if (req && can){ try { const r = req.call(de, {navigationUI: 'hide'}); if (r && r.catch) r.catch(() => { homeEl.hidden = false; }); } catch (e) { homeEl.hidden = false; } }
+  else { stopDemo(); homeEl.hidden = false; }
 });
+homeEl.addEventListener('click', () => { homeEl.hidden = true; });
+function syncFs(){ fsBtn.setAttribute('aria-pressed', !!fsEl()); setTimeout(resize, 120); }
+document.addEventListener('fullscreenchange', syncFs); document.addEventListener('webkitfullscreenchange', syncFs);
 addEventListener('resize', resize);
 
 /* =========================================================
@@ -2512,7 +2573,7 @@ document.addEventListener('pointerdown', e => { if (e.isTrusted) userTouched(); 
 function tickDemo(dt){
   if (!demo){
     const idle = clock - Math.max(lastUser, demoEnd) > IDLE_DEMO;
-    if (((demoAt && clock >= demoAt) || idle) && drawer.hidden && !active.size && DEMOS[worldId]){ demoAt = 0; const steps = DEMOS[worldId]().filter(Boolean);
+    if (((demoAt && clock >= demoAt) || idle) && drawer.hidden && homeEl.hidden && !active.size && DEMOS[worldId]){ demoAt = 0; const steps = DEMOS[worldId]().filter(Boolean);
       if (!steps.length){ demoEnd = clock; return; }
       demo = {steps, i: 0, t: 0, x: W * .82, y: GY * .95, down: false, tool0: tool}; demoQuiet = true; handEl.classList.add('on'); }
     return; }
@@ -2672,6 +2733,7 @@ function render(){
     }
     ctx.restore(); }
   world.overlay && world.overlay();
+  drawErasers();
   if (snap){ const k = (clock - snapAt) / 1.1; if (k >= 1) snap = null; else { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1 - k * k; ctx.drawImage(snap, 0, 0); ctx.restore(); } }
 }
 let last = performance.now();
@@ -2681,6 +2743,7 @@ function frame(t){ const dt = Math.min(.05, (t - last) / 1000); last = t; update
    boot
    ========================================================= */
 loadDrawings();
+document.getElementById('guideapp').innerHTML = `<img alt="" src="${figIcon('giraffe')}">`;
 buildWorldTabs(); buildPalette(); buildTools(); palEl.classList.toggle('noglyph', worldId === 'music'); numpadEl.hidden = worldId !== 'kazu'; resize(); seeding = true; world.seed(); seeding = false; markPermanent(); spawnSavedDoodles(); startDemo(1.2);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { const g = GY; measure(); if (g !== GY) rebuildBg(); });
 requestAnimationFrame(frame);
