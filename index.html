@@ -50,8 +50,17 @@
 
   .top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;right:12px;display:flex;flex-wrap:nowrap;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
   .top>*{pointer-events:auto}
-  .worlds{display:flex;gap:2px;padding:5px;max-width:calc(100% - 160px);overflow-x:auto;scrollbar-width:none;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:999px;box-shadow:var(--shadow)}
+  .wwrap{position:relative;display:flex;min-width:0;max-width:calc(100% - 160px);border-radius:999px}
+  .worlds{display:flex;gap:2px;padding:5px;max-width:100%;overflow-x:auto;scroll-padding:0 46px;scrollbar-width:none;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-radius:999px;box-shadow:var(--shadow)}
   .worlds::-webkit-scrollbar{display:none}
+  /* "there are more worlds this way": a chevron over a soft white fade at each end that still has worlds */
+  .wedge{position:absolute;top:0;bottom:0;width:46px;border:0;padding:0;display:flex;align-items:center;color:var(--ink);z-index:1;border-radius:999px}
+  .wedge[hidden]{display:none}
+  .wedge svg{width:22px;height:22px;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9))}
+  .wedge.l{left:0;justify-content:flex-start;padding-left:6px;background:linear-gradient(90deg,rgba(255,255,255,.97) 45%,rgba(255,255,255,0))}
+  .wedge.r{right:0;justify-content:flex-end;padding-right:6px;background:linear-gradient(270deg,rgba(255,255,255,.97) 45%,rgba(255,255,255,0))}
+  .wedge.r.hint svg{animation:nudge 1s ease-in-out 3}
+  @keyframes nudge{50%{transform:translateX(5px)}}
   .worlds button{flex:0 0 auto;display:flex;align-items:center;gap:5px;border:0;background:transparent;font-weight:700;font-size:14px;padding:5px 6px;min-height:46px;border-radius:999px;color:var(--muted);transition:background .2s,color .2s}
   .ic{font-size:24px;line-height:1;display:grid;place-items:center;width:38px;height:38px}
   .ic img{width:38px;height:38px;display:block}
@@ -139,7 +148,7 @@
     .tool{width:50px;height:50px;border-radius:16px}
     .tool.own{margin-left:2px}
     .ic,.ic img{width:32px;height:32px}
-    .worlds{max-width:calc(100% - 150px)}
+    .wwrap{max-width:calc(100% - 150px)}
   }
   @media (max-width:560px){ .np-n{width:36px;height:36px;font-size:16px} .np-sign{height:36px;min-width:42px;padding:0 10px;font-size:20px} .numpad{gap:4px;padding:5px} }
   @media (max-width:440px){ .worlds{gap:0;padding:4px} .worlds button{padding:4px 3px;min-height:42px} .sys button{width:42px;height:42px} .tool{width:44px;height:46px} .tools{gap:1px} .ic,.ic img{width:28px;height:28px} .sw{width:28px;height:28px} .palette{gap:6px} }
@@ -150,7 +159,11 @@
   <canvas id="cv" aria-label="さわって あそべる キャンバス"></canvas>
 
   <header class="top">
-    <nav class="worlds" role="tablist" aria-label="せかいを えらぶ" id="worlds"></nav>
+    <div class="wwrap" id="wwrap">
+      <nav class="worlds" role="tablist" aria-label="せかいを えらぶ" id="worlds"></nav>
+      <button class="wedge l" id="wl" type="button" aria-label="まえの せかい" tabindex="-1" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="wedge r" id="wr" type="button" aria-label="つぎの せかい" tabindex="-1" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
     <div class="sys">
       <button id="clr" type="button" aria-label="はじめに もどす">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.5 4v5h5"/></svg>
@@ -2366,6 +2379,14 @@ function setSign(sg){ kz.sign = sg; numpadEl.classList.toggle('minus', sg < 0); 
     b.addEventListener('click', () => { ensureAudio(); pressNumber(n); }); numpadEl.appendChild(b); }
 })();
 const worldsEl = document.getElementById('worlds'), toolsEl = document.getElementById('tools'), palEl = document.getElementById('palette'), dockEl = document.getElementById('dock');
+const wl = document.getElementById('wl'), wr = document.getElementById('wr');
+function syncWedges(){ const max = worldsEl.scrollWidth - worldsEl.clientWidth; wl.hidden = worldsEl.scrollLeft < 4; wr.hidden = worldsEl.scrollLeft > max - 4 || max <= 4; }
+worldsEl.addEventListener('scroll', syncWedges, {passive: true}); addEventListener('resize', syncWedges);
+const pageWorlds = d => { worldsEl.scrollBy({left: d * worldsEl.clientWidth * .7, behavior: 'smooth'}); sfx.plip(); };
+wl.addEventListener('click', () => pageWorlds(-1)); wr.addEventListener('click', () => pageWorlds(1));
+function peekWorlds(){ /* once per visit: slide the row a little so it's obvious it scrolls */
+  syncWedges(); if (wr.hidden) return; wr.classList.add('hint'); setTimeout(() => wr.classList.remove('hint'), 3200);
+  setTimeout(() => { if (worldsEl.scrollLeft > 4) return; worldsEl.scrollTo({left: 70, behavior: 'smooth'}); setTimeout(() => worldsEl.scrollTo({left: 0, behavior: 'smooth'}), 700); }, 900); }
 function buildWorldTabs(){
   worldsEl.innerHTML = '';
   for (const id of WORLD_ORDER){ const w = WORLDS[id];
@@ -2758,6 +2779,7 @@ loadDrawings();
 document.getElementById('guideapp').innerHTML = `<img alt="" src="${figIcon('giraffe')}">`;
 buildWorldTabs(); buildPalette(); buildTools(); palEl.classList.toggle('noglyph', worldId === 'music'); numpadEl.hidden = worldId !== 'kazu'; resize(); seeding = true; world.seed(); seeding = false; markPermanent(); spawnSavedDoodles(); startDemo(1.2);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { const g = GY; measure(); if (g !== GY) rebuildBg(); });
+setTimeout(peekWorlds, 400);
 requestAnimationFrame(frame);
 })();
 </script>
