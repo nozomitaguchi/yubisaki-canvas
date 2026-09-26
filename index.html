@@ -2541,11 +2541,10 @@ addEventListener('resize', resize);
 
 /* =========================================================
    show-me hand: instead of written hints, a hand plays each world once
-   (really drawing / tapping / throwing), and again after the screen sits idle
+   (really drawing / tapping / throwing), the first time it's opened in a visit
    ========================================================= */
 const handEl = document.getElementById('hand');
 let demo = null, demoAt = 0, lastUser = 0, demoEnd = 0, demoQuiet = false;
-const IDLE_DEMO = 28;
 const fakeEv = (x, y) => ({fake: true, pointerId: 'demo', clientX: x, clientY: y, preventDefault(){}});
 function elCenter(sel){ const el = document.querySelector(sel); if (!el || el.offsetParent === null) return null; const r = el.getBoundingClientRect(); return {x: r.left + r.width / 2, y: r.top + r.height / 2}; }
 const D = {
@@ -2574,14 +2573,14 @@ const DEMOS = {
   shape: () => { const r = Math.min(W, GY) * .14, cx = W * .5, cy = Math.max(UI_TOP + 90 * SC + r, GY * .28), pts = []; for (let k = 0; k <= 3; k++){ const a0 = -Math.PI / 2 + k * TAU / 3; if (k){ const p0 = pts[pts.length - 1], p1 = {x: cx + Math.cos(a0) * r, y: cy + Math.sin(a0) * r}; for (let i = 1; i <= 10; i++) pts.push({x: p0.x + (p1.x - p0.x) * i / 10, y: p0.y + (p1.y - p0.y) * i / 10}); } else pts.push({x: cx + Math.cos(a0) * r, y: cy + Math.sin(a0) * r}); }
     return D.draw(pts, 1.6); },
 };
-function startDemo(delay){ demoAt = clock + delay; }
+const demoShown = new Set(); /* each world shows its demo once per visit — not again on reset or when idle */
+function startDemo(delay){ if (demoShown.has(worldId)) return; demoShown.add(worldId); demoAt = clock + delay; }
 function stopDemo(){ if (!demo) return; if (demo.down) endPointer(fakeEv(demo.x, demo.y)); if (tool !== demo.tool0) setTool(demo.tool0); demo = null; demoEnd = clock; demoQuiet = false; handEl.classList.remove('on', 'down'); }
 function userTouched(){ lastUser = clock; demoAt = 0; stopDemo(); }
 document.addEventListener('pointerdown', e => { if (e.isTrusted) userTouched(); }, true);
 function tickDemo(dt){
   if (!demo){
-    const idle = clock - Math.max(lastUser, demoEnd) > IDLE_DEMO;
-    if (((demoAt && clock >= demoAt) || idle) && drawer.hidden && homeEl.hidden && !active.size && DEMOS[worldId]){ demoAt = 0; const steps = DEMOS[worldId]().filter(Boolean);
+    if (demoAt && clock >= demoAt && drawer.hidden && homeEl.hidden && !active.size && DEMOS[worldId]){ demoAt = 0; const steps = DEMOS[worldId]().filter(Boolean);
       if (!steps.length){ demoEnd = clock; return; }
       demo = {steps, i: 0, t: 0, x: W * .82, y: GY * .95, down: false, tool0: tool}; demoQuiet = true; handEl.classList.add('on'); }
     return; }
