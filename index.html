@@ -2007,6 +2007,7 @@ document.addEventListener('gesturestart', e => e.preventDefault());
 let snap = null, snapAt = 0;
 function resetWorld(){
   const c = document.createElement('canvas'); c.width = cv.width; c.height = cv.height; c.getContext('2d').drawImage(cv, 0, 0); snap = c; snapAt = clock;
+  myDrawings = []; saveDrawings();
   switchWorld(worldId); toast('はじめに もどったよ', 1800); sfx.whoosh();
 }
 document.getElementById('clr').addEventListener('click', () => { ensureAudio(); resetWorld(); });
